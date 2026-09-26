@@ -739,12 +739,19 @@ function refreshData(y){
 
 /* ── engine ── */
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
-const MAX_BLOCK=12,SHORT_BLOCK=6;
+const MAX_BLOCK=12,SHORT_BLOCK=6,MIN_GAP_DAYS=84;
 const TIER_LABEL=['Lang','Kurz','Flexibel'];
 function blockAt(cur,qEd,len){let p=new Date(cur),col=0;while(col<len&&p<=qEd){if(isWork(p))col++;if(col<len)p=addD(p,1);}if(p>qEd||col<len)return null;if(!hasBuf(cur,p))return null;let x=new Date(cur);while(x<=p){if(isBlocked(x))return null;x=addD(x,1);}return{start:new Date(cur),end:p,workdays:cntWork(cur,p)};}
 function searchExact(qS,qE,len,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}const found=blockAt(cur,qEd,len);if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
 function searchFlexible(qS,qE,capLen,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}let found=null;for(let len=capLen;len>=1;len--){found=blockAt(cur,qEd,len);if(found)break;}if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
 function buildQuarterOptions(q){const longArr=searchExact(q.start,q.end,MAX_BLOCK,1);const shortArr=searchExact(q.start,q.end,SHORT_BLOCK,1);return[longArr[0]||null,shortArr[0]||null,null];}
+function selectedBlock(qid){const i=MY_PLAN[qid];return(i!==null&&i>=0&&RESULTS[qid]&&RESULTS[qid][i])?RESULTS[qid][i]:null;}
+function gapBounds(qid){
+  const idx=QUARTALS.findIndex(q=>q.id===qid);let minStart=null,maxEnd=null;
+  if(idx>0){const prevO=selectedBlock(QUARTALS[idx-1].id);if(prevO)minStart=addD(prevO.end,MIN_GAP_DAYS);}
+  if(idx<QUARTALS.length-1){const nextO=selectedBlock(QUARTALS[idx+1].id);if(nextO)maxEnd=addD(nextO.start,-MIN_GAP_DAYS);}
+  return{minStart,maxEnd};
+}
 function recomputeSmart(){
   const tot=effTotal();let used=0;const flexible=[];
   for(const q of QUARTALS){
@@ -758,7 +765,11 @@ function recomputeSmart(){
   for(const q of QUARTALS){
     const arr=RESULTS[q.id];if(!arr)continue;
     if(!flexible.includes(q.id))continue;
-    arr[2]=each>0?(searchFlexible(q.start,q.end,each,1)[0]||null):null;
+    const{minStart,maxEnd}=gapBounds(q.id);
+    let qS=q.start,qE=q.end;
+    if(minStart&&d(qS)<minStart)qS=iso(minStart);
+    if(maxEnd&&d(qE)>maxEnd)qE=iso(maxEnd);
+    arr[2]=(each>0&&d(qS)<=d(qE))?(searchFlexible(qS,qE,each,1)[0]||null):null;
   }
 }
 
