@@ -642,6 +642,21 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 </div>
 </div>
 
+<div class="mbg" id="onboard-modal">
+  <div class="mbox">
+    <div class="mbox-t">Willkommen bei IRIS Holiday</div>
+    <div style="font-size:var(--fs-sm);color:var(--text-faint);margin-bottom:16px;line-height:1.5">Gib den Start deiner Urlaubsplanung an — den restlichen Jahresplan berechnet die App automatisch.</div>
+    <label class="field-label" for="ob-year">Jahr</label>
+    <select class="field" id="ob-year" style="margin-bottom:14px"></select>
+    <label class="field-label" for="ob-month">Erster Urlaub — Monat</label>
+    <select class="field" id="ob-month" style="margin-bottom:14px"></select>
+    <label class="field-label" for="ob-days">Erster Urlaub — Tage</label>
+    <input type="number" class="field" id="ob-days" min="1" max="60" step="1" style="margin-bottom:18px">
+    <button class="btn-gen" style="margin-bottom:8px" onclick="onboardSubmit()"><span>&#9889;</span> Plan automatisch erstellen</button>
+    <button class="mclose" onclick="closeOnboard()">Später</button>
+  </div>
+</div>
+
 <div class="mbg" id="yr-modal" onclick="closeYearModal(event)">
   <div class="mbox">
     <div class="mbox-t">Jahr wählen</div>
@@ -691,6 +706,7 @@ function isBlocked(dt){if(CFG.ftExcl&&FT_SET.has(iso(dt)))return true;if(CFG.fer
 function wdBetween(a,b){let n=0,c=addD(a,1);while(c<b){if(isWork(c))n++;c=addD(c,1);}return n;}
 function effTotal(){return Math.max(0,CFG.totalDays+CFG.carryOver+CFG.specialDays-CFG.takenDays);}
 const MN3=['Jan','Feb','M\xE4r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const MN_FULL=['Januar','Februar','M\xE4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 function monthAdd(y,m,offset){const total=(m-1)+offset;return{year:y+Math.floor(total/12),month:(((total%12)+12)%12)+1};}
 function monthRange(y,m){const start=y+'-'+String(m).padStart(2,'0')+'-01';const lastDay=new Date(y,m,0).getDate();const end=y+'-'+String(m).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');return[start,end];}
 function qLabel(q){return MN3[d(q.start).getMonth()]+'–'+MN3[d(q.end).getMonth()];}
@@ -744,7 +760,7 @@ function onDirty(){DIRTY=true;document.getElementById('set-dot').style.display='
 function renderSZList(){const c=document.getElementById('sperr-list');if(!CFG.sperrzeiten.length){c.innerHTML='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:3px 0">Keine Sperrzeiten hinterlegt.</div>';return;}c.innerHTML=CFG.sperrzeiten.map((z,i)=>'<div class="sperr-item"><div class="sperr-dot"></div><div class="sperr-text"><strong style="font-size:var(--fs-sm)">'+z.name+'</strong><br><span style="font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)">'+fmt(d(z.start))+' – '+fmt(d(z.end))+'</span></div><button class="sperr-del" onclick="delSZ('+i+')">&#10005;</button></div>').join('');}
 function addSZ(){const nm=document.getElementById('sz-name').value.trim(),fr=document.getElementById('sz-from').value,to=document.getElementById('sz-to').value;if(!nm){showToast('Bezeichnung eingeben');return;}if(!fr||!to){showToast('Datum eingeben');return;}if(fr>to){showToast('Von muss vor Bis liegen');return;}CFG.sperrzeiten.push({name:nm,start:fr,end:to});document.getElementById('sz-name').value='';document.getElementById('sz-from').value='';document.getElementById('sz-to').value='';renderSZList();onDirty();showToast('Sperrzeit hinzugef\xFCgt');}
 function delSZ(i){CFG.sperrzeiten.splice(i,1);renderSZList();onDirty();}
-function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');const MN_FULL=['Januar','Februar','M\xE4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland+' | Planungsbeginn '+MN_FULL[CFG.startMonth-1]);showToast('Einstellungen gespeichert ✓');}
+function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland+' | Planungsbeginn '+MN_FULL[CFG.startMonth-1]);showToast('Einstellungen gespeichert ✓');}
 
 /* ── main storage ── */
 const sKey=y=>'irisholiday_'+y;
@@ -757,7 +773,7 @@ function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({results:ser
 function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=data.myPlanSaved||null;return true;}catch{return false;}}
 
 /* ── generate ── */
-function generateOptions(){
+function generateOptions(cb){
   if(DIRTY){showToast('Einstellungen zuerst speichern');return;}
   const btn=document.getElementById('gen-btn');btn.classList.add('loading');document.getElementById('gen-icon').innerHTML='<span class="spin"></span>';document.getElementById('gen-txt').textContent='Berechne…';
   setTimeout(()=>{
@@ -767,7 +783,34 @@ function generateOptions(){
     RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
     CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK ✓');
     saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';
+    if(typeof cb==='function')cb();
   },480);
+}
+
+/* ── onboarding — Startmonat + erster Urlaub, App baut Rest automatisch ── */
+function openOnboard(){
+  document.getElementById('ob-year').innerHTML=AVAIL_YEARS.map(y=>'<option value="'+y+'"'+(y===YEAR?' selected':'')+'>'+y+'</option>').join('');
+  document.getElementById('ob-month').innerHTML=MN_FULL.map((mn,i)=>'<option value="'+(i+1)+'"'+(i+1===CFG.startMonth?' selected':'')+'>'+mn+'</option>').join('');
+  document.getElementById('ob-days').value=CFG.qTargets.Q1;
+  document.getElementById('onboard-modal').classList.add('open');
+}
+function closeOnboard(){document.getElementById('onboard-modal').classList.remove('open');}
+function autoSelectAndSave(){
+  for(const q of QUARTALS){const opts=RESULTS[q.id]||[];MY_PLAN[q.id]=opts.length?0:null;}
+  renderPlanSels();updPlanBudget();renderCalendar();
+  saveMyPlan();
+  showToast('Jahresplan automatisch erstellt ✓');
+}
+function onboardSubmit(){
+  const y=Number(document.getElementById('ob-year').value);
+  const m=Number(document.getElementById('ob-month').value);
+  const days=Math.max(1,Math.min(60,Math.round(Number(document.getElementById('ob-days').value))||1));
+  CFG.startMonth=m;CFG.qTargets.Q1=days;saveSettingsStorage();
+  closeOnboard();
+  setYear(y);
+  DIRTY=false;document.getElementById('set-dot').style.display='none';
+  syncUI();
+  generateOptions(autoSelectAndSave);
 }
 
 /* ── plan builder ── */
@@ -974,6 +1017,7 @@ let tT=null;function showToast(msg){const t=document.getElementById('toast');t.t
   document.getElementById('tline').style.left='0px';document.getElementById('tline').style.width=w+'px';
   renderAll();
   if(CALC_DONE){document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';logAdd('info','IRIS Holiday '+YEAR+' — geladen');}
+  else{openOnboard();}
 })();
 </script>
 </body>
