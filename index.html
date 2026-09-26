@@ -416,7 +416,8 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <div class="q-card card qc4"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q4</div><span class="badge bp" id="q4b">6 T</span></div><div class="q-num" id="q4n">6</div><div class="q-desc" id="q4d">Okt–Dez</div><div class="qbar"><div class="qbf" id="qb4" style="width:0%"></div></div></div>
   </div>
   <button class="btn-gen" id="gen-btn" onclick="generateOptions()"><span id="gen-icon">&#9889;</span><span id="gen-txt">Optionen berechnen</span></button>
-  <button class="btn-sec" onclick="resetAll()">&#8635; Reset</button>
+  <button class="btn-sec" onclick="openOnboard()" style="margin-bottom:8px">&#8635; Setup-Assistent erneut öffnen</button>
+  <button class="btn-sec" onclick="resetAll()">&#10060; Reset (Plan löschen)</button>
   <div id="dash-res"><div class="empty"><div class="ei">&#9672;</div>Optionen berechnen → Mein Plan zusammenstellen</div></div>
 </div>
 
@@ -990,6 +991,7 @@ function resetAll(){
   document.getElementById('plan-status').textContent='ENTWURF';document.getElementById('plan-status').className='badge bm';
   document.getElementById('appr-dot').style.display='none';
   renderAll();logClear();logAdd('info','Reset \xB7 System bereit.');
+  openOnboard();
 }
 
 /* ── year ── */
