@@ -410,10 +410,10 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <div class="kpi-card card ca"><div class="kpi-lbl">Genehmigung</div><div class="kpi-v" id="ko" style="font-size:var(--fs-h3);margin-top:4px">—</div><div class="kpi-s" id="ko-sub">offen</div></div>
   </div>
   <div class="q-grid">
-    <div class="q-card card qc1"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q1</div><span class="badge bm" id="q1b">12 T</span></div><div class="q-num" id="q1n">12</div><div class="q-desc">Jan–Mär</div><div class="qbar"><div class="qbf" id="qb1" style="width:0%"></div></div></div>
-    <div class="q-card card qc2"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q2</div><span class="badge bg" id="q2b">6 T</span></div><div class="q-num" id="q2n">6</div><div class="q-desc">Apr–Jun</div><div class="qbar"><div class="qbf" id="qb2" style="width:0%"></div></div></div>
-    <div class="q-card card qc3"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q3</div><span class="badge bgg" id="q3b">12 T</span></div><div class="q-num" id="q3n">12</div><div class="q-desc">Jul–Sep</div><div class="qbar"><div class="qbf" id="qb3" style="width:0%"></div></div></div>
-    <div class="q-card card qc4"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q4</div><span class="badge bp" id="q4b">6 T</span></div><div class="q-num" id="q4n">6</div><div class="q-desc">Okt–Dez</div><div class="qbar"><div class="qbf" id="qb4" style="width:0%"></div></div></div>
+    <div class="q-card card qc1"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q1</div><span class="badge bm" id="q1b">12 T</span></div><div class="q-num" id="q1n">12</div><div class="q-desc" id="q1d">Jan–Mär</div><div class="qbar"><div class="qbf" id="qb1" style="width:0%"></div></div></div>
+    <div class="q-card card qc2"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q2</div><span class="badge bg" id="q2b">6 T</span></div><div class="q-num" id="q2n">6</div><div class="q-desc" id="q2d">Apr–Jun</div><div class="qbar"><div class="qbf" id="qb2" style="width:0%"></div></div></div>
+    <div class="q-card card qc3"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q3</div><span class="badge bgg" id="q3b">12 T</span></div><div class="q-num" id="q3n">12</div><div class="q-desc" id="q3d">Jul–Sep</div><div class="qbar"><div class="qbf" id="qb3" style="width:0%"></div></div></div>
+    <div class="q-card card qc4"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q4</div><span class="badge bp" id="q4b">6 T</span></div><div class="q-num" id="q4n">6</div><div class="q-desc" id="q4d">Okt–Dez</div><div class="qbar"><div class="qbf" id="qb4" style="width:0%"></div></div></div>
   </div>
   <button class="btn-gen" id="gen-btn" onclick="generateOptions()"><span id="gen-icon">&#9889;</span><span id="gen-txt">Optionen berechnen</span></button>
   <button class="btn-sec" onclick="resetAll()">&#8635; Reset</button>
@@ -480,7 +480,7 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     </div>
     <div class="field-row">
       <label class="field-label" for="in-startmonth">Planungsbeginn</label>
-      <div class="field-desc">Ab diesem Monat wird der erste Urlaub geplant — davor werden keine Optionen berechnet.</div>
+      <div class="field-desc">Legt fest, ab welchem Monat der erste Urlaub startet. Alle vier Quartale verschieben sich entsprechend (je 3 Monate) — kein Quartal fällt weg.</div>
       <select class="field" id="in-startmonth" onchange="onStartMonth(this.value)">
         <option value="1">Januar</option><option value="2">Februar</option><option value="3">März</option>
         <option value="4">April</option><option value="5">Mai</option><option value="6">Juni</option>
@@ -509,19 +509,19 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <div class="sg card">
     <div class="sg-title">Urlaubstage je Quartal</div>
     <div class="field-row">
-      <label class="field-label" for="in-q1">Q1 · Jan – Mär</label>
+      <label class="field-label" for="in-q1">Q1 · <span id="q1lbl">Jan – Mär</span></label>
       <input type="number" class="field" id="in-q1" min="0" max="60" step="1" oninput="onQ('Q1',this.value)">
     </div>
     <div class="field-row">
-      <label class="field-label" for="in-q2">Q2 · Apr – Jun</label>
+      <label class="field-label" for="in-q2">Q2 · <span id="q2lbl">Apr – Jun</span></label>
       <input type="number" class="field" id="in-q2" min="0" max="60" step="1" oninput="onQ('Q2',this.value)">
     </div>
     <div class="field-row">
-      <label class="field-label" for="in-q3">Q3 · Jul – Sep</label>
+      <label class="field-label" for="in-q3">Q3 · <span id="q3lbl">Jul – Sep</span></label>
       <input type="number" class="field" id="in-q3" min="0" max="60" step="1" oninput="onQ('Q3',this.value)">
     </div>
     <div class="field-row">
-      <label class="field-label" for="in-q4">Q4 · Okt – Dez</label>
+      <label class="field-label" for="in-q4">Q4 · <span id="q4lbl">Okt – Dez</span></label>
       <input type="number" class="field" id="in-q4" min="0" max="60" step="1" oninput="onQ('Q4',this.value)">
     </div>
     <div class="q-sum-row"><span style="font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--text-faint)">Summe:</span><span id="q-sum" style="font-family:var(--font-mono);font-size:var(--fs-body);font-weight:700;color:var(--sun-l)">36 / 36</span></div>
@@ -690,15 +690,31 @@ function cntWork(s,e){let n=0,c=new Date(s);while(c<=e){if(isWork(c))n++;c=addD(
 function isBlocked(dt){if(CFG.ftExcl&&FT_SET.has(iso(dt)))return true;if(CFG.ferienExcl)for(const f of SCHULFERIEN)if(dt>=d(f.start)&&dt<=d(f.end))return true;for(const z of CFG.sperrzeiten)if(dt>=d(z.start)&&dt<=d(z.end))return true;return false;}
 function wdBetween(a,b){let n=0,c=addD(a,1);while(c<b){if(isWork(c))n++;c=addD(c,1);}return n;}
 function effTotal(){return Math.max(0,CFG.totalDays+CFG.carryOver+CFG.specialDays-CFG.takenDays);}
-function planFloor(){return new Date(YEAR,CFG.startMonth-1,1);}
+const MN3=['Jan','Feb','M\xE4r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+function monthAdd(y,m,offset){const total=(m-1)+offset;return{year:y+Math.floor(total/12),month:(((total%12)+12)%12)+1};}
+function monthRange(y,m){const start=y+'-'+String(m).padStart(2,'0')+'-01';const lastDay=new Date(y,m,0).getDate();const end=y+'-'+String(m).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');return[start,end];}
+function qLabel(q){return MN3[d(q.start).getMonth()]+'–'+MN3[d(q.end).getMonth()];}
 
 /* ── data ── */
 function calcE(y){const a=y%19,b=Math.floor(y/100),c=y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);const g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;const m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,day);}
 function ea(E,n){const r=new Date(E);r.setDate(E.getDate()+n);return iso(r);}
 function getFT(y,bl){const E=calcE(y);const ft=[{date:y+'-01-01',name:'Neujahr'},{date:ea(E,-2),name:'Karfreitag'},{date:ea(E,1),name:'Ostermontag'},{date:y+'-05-01',name:'Tag der Arbeit'},{date:ea(E,39),name:'Christi Himmelfahrt'},{date:ea(E,50),name:'Pfingstmontag'},{date:y+'-10-03',name:'Tag der Deutschen Einheit'},{date:y+'-12-25',name:'1. Weihnachtstag'},{date:y+'-12-26',name:'2. Weihnachtstag'}];if(['HE','BY','BW','NW','SL'].includes(bl))ft.push({date:ea(E,60),name:'Fronleichnam'});if(['BY','BW','SL'].includes(bl))ft.push({date:y+'-11-01',name:'Allerheiligen'});if(['BY','BW'].includes(bl))ft.push({date:y+'-01-06',name:'Hl. Drei K\xF6nige'});if(['BE','BB','MV','SN','ST','TH'].includes(bl))ft.push({date:y+'-10-31',name:'Reformationstag'});return ft;}
 function getSF(y){const E=calcE(y);const os=new Date(E);os.setDate(E.getDate()-13);const oe=new Date(E);oe.setDate(E.getDate()+3);return[{name:'Osterferien',start:iso(os),end:iso(oe)},{name:'Sommerferien',start:y+'-07-05',end:y+'-08-14'},{name:'Herbstferien',start:y+'-10-11',end:y+'-10-23'},{name:'Weihnachtsferien',start:y+'-12-20',end:(y+1)+'-01-08'}];}
-function buildQ(y){return[{id:'Q1',start:y+'-01-01',end:y+'-03-31',target:CFG.qTargets.Q1},{id:'Q2',start:y+'-04-01',end:y+'-06-30',target:CFG.qTargets.Q2},{id:'Q3',start:y+'-07-01',end:y+'-09-30',target:CFG.qTargets.Q3},{id:'Q4',start:y+'-10-01',end:y+'-12-31',target:CFG.qTargets.Q4}];}
-function refreshData(y){FEIERTAGE=getFT(y,CFG.bundesland);SCHULFERIEN=getSF(y);FT_SET=new Set(FEIERTAGE.map(f=>f.date));QUARTALS=buildQ(y);}
+function buildQ(y){
+  const ids=['Q1','Q2','Q3','Q4'],tg=[CFG.qTargets.Q1,CFG.qTargets.Q2,CFG.qTargets.Q3,CFG.qTargets.Q4],out=[];
+  for(let i=0;i<4;i++){
+    const s=monthAdd(y,CFG.startMonth,i*3),e=monthAdd(y,CFG.startMonth,i*3+2);
+    const[qStart]=monthRange(s.year,s.month),[,qEnd]=monthRange(e.year,e.month);
+    out.push({id:ids[i],start:qStart,end:qEnd,target:tg[i]});
+  }
+  return out;
+}
+function refreshData(y){
+  FEIERTAGE=[...getFT(y,CFG.bundesland),...getFT(y+1,CFG.bundesland)];
+  SCHULFERIEN=[...getSF(y),...getSF(y+1)];
+  FT_SET=new Set(FEIERTAGE.map(f=>f.date));
+  QUARTALS=buildQ(y);
+}
 
 /* ── engine ── */
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
@@ -717,7 +733,8 @@ function syncUI(){
   updQSum();renderSZList();updQCards();
 }
 function updQSum(){const s=CFG.qTargets.Q1+CFG.qTargets.Q2+CFG.qTargets.Q3+CFG.qTargets.Q4,t=CFG.totalDays;const el=document.getElementById('q-sum');el.textContent=s+' / '+t;el.style.color=s===t?'var(--green-l)':s>t?'#e88':'var(--sun-l)';}
-function updQCards(){['Q1','Q2','Q3','Q4'].forEach((q,i)=>{const n=document.getElementById('q'+(i+1)+'n'),b=document.getElementById('q'+(i+1)+'b');if(n)n.textContent=CFG.qTargets[q];if(b)b.textContent=CFG.qTargets[q]+' T';});}
+function updQCards(){['Q1','Q2','Q3','Q4'].forEach((q,i)=>{const n=document.getElementById('q'+(i+1)+'n'),b=document.getElementById('q'+(i+1)+'b');if(n)n.textContent=CFG.qTargets[q];if(b)b.textContent=CFG.qTargets[q]+' T';});updQLabels();}
+function updQLabels(){QUARTALS.forEach((q,i)=>{const lbl=qLabel(q);const dd=document.getElementById('q'+(i+1)+'d');if(dd)dd.textContent=lbl;const sl=document.getElementById('q'+(i+1)+'lbl');if(sl)sl.textContent=lbl.replace('–',' – ');});}
 function onNum(k,val){const map={total:'totalDays',carry:'carryOver',special:'specialDays',taken:'takenDays',puffer:'puffer',alts:'alts'};const lim={total:[0,90],carry:[0,60],special:[0,30],taken:[0,90],puffer:[1,20],alts:[1,5]};const prop=map[k],[mn,mx]=lim[k];CFG[prop]=Math.max(mn,Math.min(mx,Math.round(Number(val)||0)));if(k==='total')updQSum();onDirty();}
 function onQ(q,val){CFG.qTargets[q]=Math.max(0,Math.min(60,Math.round(Number(val)||0)));updQSum();onDirty();}
 function onModel(v){CFG.workModel=v;CFG.samstag=(v==='6t');document.getElementById('tog-sa').checked=CFG.samstag;onDirty();}
@@ -746,8 +763,8 @@ function generateOptions(){
   setTimeout(()=>{
     logClear();logAdd('info','Engine — '+CFG.bundesland+' '+YEAR+' — '+CFG.workModel+' — Puffer: '+CFG.puffer+' AT');logAdd('info','Kontingent: '+effTotal()+' AT');
     FEIERTAGE.forEach(f=>logAdd('feiertag',fmt(d(f.date))+' — '+f.name));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>logAdd('ferien',fmt(d(f.start))+' – '+fmt(d(f.end))+' — '+f.name));CFG.sperrzeiten.forEach(z=>logAdd('ferien','Sperre: '+z.name));
-    const floor=planFloor();if(CFG.startMonth>1)logAdd('info','Planungsbeginn: '+fmt(floor)+' — Optionen davor werden nicht berechnet');
-    RESULTS={};for(const q of QUARTALS){const qStart=d(q.start)<floor?iso(floor):q.start;const c=genC(qStart,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
+    logAdd('info','Planungsbeginn: '+MN3[CFG.startMonth-1]+' — Q1 startet ab '+fmt(d(QUARTALS[0].start)));
+    RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
     CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK ✓');
     saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';
   },480);
@@ -760,12 +777,11 @@ function renderPlanSels(){
   if(!CALC_DONE){document.getElementById('plan-no-calc').style.display='block';document.getElementById('plan-sels').innerHTML='';return;}
   document.getElementById('plan-no-calc').style.display='none';
   const QC={Q1:'var(--slate)',Q2:'var(--sun-l)',Q3:'var(--mint)',Q4:'var(--lime)'};
-  const QL={Q1:'Q1 \xB7 Jan–M\xE4r',Q2:'Q2 \xB7 Apr–Jun',Q3:'Q3 \xB7 Jul–Sep',Q4:'Q4 \xB7 Okt–Dez'};
   let html='';
   for(const q of QUARTALS){
     const opts=RESULTS[q.id]||[],sel=MY_PLAN[q.id];
     const stxt=sel!==null&&opts[sel]?'Opt.'+'ABC'[sel]+' \xB7 '+opts[sel].workdays+' AT':'Keine Auswahl';
-    html+='<div class="q-sel card"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+QL[q.id]+' (Ziel: '+q.target+' AT)</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
+    html+='<div class="q-sel card"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+q.id+' \xB7 '+qLabel(q)+' (Ziel: '+q.target+' AT)</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
     if(!opts.length){html+='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';}
     else{
       opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});
@@ -888,7 +904,7 @@ function renderApprView(){
 }
 
 /* ── render all ── */
-function renderAll(){updateKPIs();renderDash();renderPlanSels();updPlanBudget();renderSavedPlan();renderCalendar();renderApprView();document.getElementById('yr-disp').textContent=YEAR;document.getElementById('kal-yr').textContent=YEAR;const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;updateKPIsAppr();}
+function renderAll(){updQLabels();updateKPIs();renderDash();renderPlanSels();updPlanBudget();renderSavedPlan();renderCalendar();renderApprView();document.getElementById('yr-disp').textContent=YEAR;const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;updateKPIsAppr();}
 function updateKPIs(){
   const plan=MY_PLAN_SAVED||MY_PLAN;let total=0;for(const q of QUARTALS){const i=plan[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])total+=RESULTS[q.id][i].workdays;}
   const tot=effTotal();document.getElementById('kv').textContent=total;document.getElementById('kr').textContent=Math.max(tot-total,0);document.getElementById('pill-val').textContent=total+'/'+tot;
@@ -900,11 +916,19 @@ function renderDash(){
   c.innerHTML=html;
 }
 function renderCalendar(){
-  document.getElementById('kal-yr').textContent=YEAR;const grid=document.getElementById('cal-grid');const urlSet=new Set(),puSet=new Set();
+  const endInfo=monthAdd(YEAR,CFG.startMonth,11);
+  document.getElementById('kal-yr').textContent=endInfo.year>YEAR?YEAR+'–'+endInfo.year:YEAR;
+  const grid=document.getElementById('cal-grid');const urlSet=new Set(),puSet=new Set();
   const ap=MY_PLAN_SAVED||(CALC_DONE?MY_PLAN:null);
   if(ap)for(const q of QUARTALS){const i=ap[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const pt=RESULTS[q.id][i];let p=new Date(pt.start);while(p<=pt.end){if(isWork(p))urlSet.add(iso(p));p=addD(p,1);}for(let k=1;k<=12;k++){const b=addD(pt.start,-k),a=addD(pt.end,k);if(isWork(b))puSet.add(iso(b));if(isWork(a))puSet.add(iso(a));}}}
-  const MN=['Jan','Feb','M\xE4r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],DN=['Mo','Di','Mi','Do','Fr','Sa','So'];let html='';
-  for(let m=0;m<12;m++){const first=new Date(YEAR,m,1),last=new Date(YEAR,m+1,0);let sdow=first.getDay();sdow=sdow===0?6:sdow-1;html+='<div class="mc card"><div class="mn">'+MN[m]+' '+YEAR+'</div><div class="cg7">';for(const dn of DN)html+='<div class="cdh">'+dn+'</div>';for(let i=0;i<sdow;i++)html+='<div class="cd e"></div>';for(let day=1;day<=last.getDate();day++){const dt=new Date(YEAR,m,day),key=iso(dt);let cls='cd';if(dt.getDay()===0)cls+=' su';else if(CFG.ftExcl&&FT_SET.has(key))cls+=' ft';else if((CFG.ferienExcl&&SCHULFERIEN.some(f=>dt>=d(f.start)&&dt<=d(f.end)))||CFG.sperrzeiten.some(z=>dt>=d(z.start)&&dt<=d(z.end)))cls+=' fe';else if(urlSet.has(key))cls+=' ur';else if(puSet.has(key))cls+=' pu';html+='<div class="'+cls+'">'+day+'</div>';}html+='</div></div>';}
+  const DN=['Mo','Di','Mi','Do','Fr','Sa','So'];let html='';
+  for(let i=0;i<12;i++){
+    const mi=monthAdd(YEAR,CFG.startMonth,i),y=mi.year,m=mi.month;
+    const first=new Date(y,m-1,1),last=new Date(y,m,0);let sdow=first.getDay();sdow=sdow===0?6:sdow-1;
+    html+='<div class="mc card"><div class="mn">'+MN3[m-1]+' '+y+'</div><div class="cg7">';for(const dn of DN)html+='<div class="cdh">'+dn+'</div>';for(let e=0;e<sdow;e++)html+='<div class="cd e"></div>';
+    for(let day=1;day<=last.getDate();day++){const dt=new Date(y,m-1,day),key=iso(dt);let cls='cd';if(dt.getDay()===0)cls+=' su';else if(CFG.ftExcl&&FT_SET.has(key))cls+=' ft';else if((CFG.ferienExcl&&SCHULFERIEN.some(f=>dt>=d(f.start)&&dt<=d(f.end)))||CFG.sperrzeiten.some(z=>dt>=d(z.start)&&dt<=d(z.end)))cls+=' fe';else if(urlSet.has(key))cls+=' ur';else if(puSet.has(key))cls+=' pu';html+='<div class="'+cls+'">'+day+'</div>';}
+    html+='</div></div>';
+  }
   grid.innerHTML=html;
 }
 
