@@ -840,7 +840,7 @@ function autoSelectAndSave(){
     MY_PLAN[q.id]=idx;
     recomputeSmart();
   }
-  renderPlanSels();updPlanBudget();renderCalendar();
+  renderDash();renderPlanSels();updPlanBudget();renderCalendar();
   saveMyPlan();
   showToast('Jahresplan automatisch erstellt ✓');
 }
@@ -860,7 +860,7 @@ function onboardSubmit(){
 function planBudget(){let t=0;for(const q of QUARTALS){const i=MY_PLAN[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])t+=RESULTS[q.id][i].workdays;}return t+MANUAL_DAYS.size;}
 function selectOpt(qid,idx){
   MY_PLAN[qid]=(idx===null)?(MY_PLAN[qid]===-1?null:-1):(MY_PLAN[qid]===idx?null:idx);
-  recomputeSmart();renderPlanSels();updPlanBudget();renderCalendar();
+  recomputeSmart();renderDash();renderPlanSels();updPlanBudget();renderCalendar();
   const ps=document.getElementById('plan-status');
   if(planDirty()){ps.textContent='ENTWURF (ungespeichert)';ps.className='badge bg';}
   else{ps.textContent='GESPEICHERT';ps.className='badge bgg';}
