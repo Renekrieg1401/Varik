@@ -3,364 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>VARIK — Urlaubsplaner</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%23001f30'/%3E%3Crect x='30' y='30' width='452' height='452' rx='82' fill='%23003049'/%3E%3Cpath d='M118 175 L256 355 L394 175' stroke='%23D1AC00' stroke-width='44' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='126' y='390' width='56' height='9' rx='4.5' fill='%23BAD1CD' opacity='0.3'/%3E%3Crect x='196' y='390' width='56' height='9' rx='4.5' fill='%23D1AC00' opacity='0.55'/%3E%3Crect x='266' y='390' width='56' height='9' rx='4.5' fill='%23248232' opacity='0.5'/%3E%3Crect x='336' y='390' width='56' height='9' rx='4.5' fill='%23713E5A' opacity='0.45'/%3E%3C/svg%3E">
+<title>IRIS Holiday — Urlaubsplaner</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VARIK">
-<meta name="theme-color" content="#001f30">
+<meta name="apple-mobile-web-app-title" content="IRIS Holiday">
+<meta name="theme-color" content="#2B4570">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
-/* ── TOKENS ── */
+/* ── TOKENS — 1:1 aus IRIS-DIGITAL/iris-web (Charcoal/Surface/Mint/Lime)
+   + AERIS-Font-Scale (aeris-app-finanz/app.css --ae-font-*) ── */
 :root{
-  --navy:#003049;--navy-d:#001f30;
-  --mist:#BAD1CD;--gold:#D1AC00;--gold-l:#f0d040;
-  --green:#248232;--green-l:#4fc55e;
-  --plum:#713E5A;--plum-l:#9b5580;
-  --red-l:#e05a5a;
-  --bg:#09141e;--surf:#0d1e2c;--surf2:#122334;--surf3:#172b3e;
-  --brd:rgba(186,209,205,.10);--brd2:rgba(186,209,205,.18);
-  --txt:#e4eeec;--txtm:rgba(228,238,236,.50);
-  --mono:'DM Mono',monospace;--sans:'Outfit',sans-serif;
-  --tab-h:56px;--top-h:50px;
-  --r:10px;/* card radius */
+  --charcoal:#2B4570;--primary-dark:#17273F;--surface:#253144;--bg2:#1B2535;
+  --ink:#FFFFFF;--slate:#E0E0E0;--text-faint:#C0C0C0;--secondary:#5B7290;--primary-light:#7C93B8;
+  --mint:#A8BEDD;--lime:#E6ACBE;--sun:#D1AC00;--sun-l:#F5D687;
+  --green:#3FA66B;--green-l:#5FC98A;
+  --border:rgba(124,147,184,.16);--border2:rgba(124,147,184,.32);
+  --font-sans:'Plus Jakarta Sans',sans-serif;--font-brand:'Michroma',sans-serif;--font-mono:'DM Mono',monospace;
+  --fs-xs:11px;--fs-sm:14px;--fs-chip:13px;--fs-body:16px;--fs-bodylg:18px;
+  --fs-h3:20px;--fs-h2:24px;--fs-h1:30px;--fs-display:44px;
+  --tab-h:64px;--top-h:64px;--r:14px;
 }
 
 /* ── RESET ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{height:100%;-webkit-text-size-adjust:100%}
-body{height:100%;overflow:hidden;font-family:var(--sans);
-  /* MOBILE FIRST: 10px base */
-  font-size:10px;
-  background:var(--bg);color:var(--txt);-webkit-tap-highlight-color:transparent}
+body{height:100%;overflow:hidden;font-family:var(--font-sans);font-size:var(--fs-body);
+  background:var(--charcoal);color:var(--ink);-webkit-tap-highlight-color:transparent}
 
 /* ── SHELL ── */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
+/* ── GLASS-CARD-EFFEKT — 1:1 aus iris-web .lw-card ── */
+.card{position:relative;overflow:hidden;border-radius:var(--r);
+  transition:transform .2s cubic-bezier(.22,1,.36,1),border-color .3s ease,box-shadow .3s ease;
+  transform-style:preserve-3d;background:rgba(19,27,39,.55);border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  box-shadow:-6px -6px 10px rgba(124,147,184,.22),22px 22px 40px rgba(0,0,0,.65)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);z-index:1}
+.card:hover{transform:perspective(600px) rotateX(4deg) translateY(-5px) scale(1.02);
+  border-color:var(--primary-light);
+  box-shadow:-8px -8px 12px rgba(124,147,184,.32),26px 26px 46px rgba(0,0,0,.8)}
+.card:active{transform:scale(.98);border-color:var(--primary-light);box-shadow:0 4px 14px rgba(0,0,0,.6)}
+
+/* ── HERO/HEADER — 1:1 aus iris-web .lw-hero ── */
+.hero{position:relative;overflow:hidden;background:linear-gradient(100deg,var(--charcoal),var(--primary-dark));
+  box-shadow:0 8px 16px rgba(0,0,0,.75)}
+.hero::before{content:'';position:absolute;inset:-20%;z-index:-1;
+  background:linear-gradient(120deg,var(--bg2),var(--primary-dark),var(--charcoal),var(--bg2));
+  background-size:300% 300%;opacity:.15}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);z-index:1}
+
+/* ── BRAND-WORDMARK — Michroma, 1:1 aus iris-web .lw-techtype ── */
+.brand-type{font-family:var(--font-brand);letter-spacing:.04em}
+
+/* ── BADGE-SHIMMER — 1:1 aus iris-web .lw-badge, nur für Top-Status ── */
+.badge-shimmer{border:1px solid var(--border2);
+  background:linear-gradient(90deg,var(--mint),var(--lime),var(--mint),var(--lime),var(--mint)) !important;
+  background-size:250% 100%;animation:shimmer 4s linear infinite;
+  color:var(--primary-dark) !important;font-weight:700}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:250% 50%}}
+
 /* ── TOPBAR ── */
-#topbar{flex-shrink:0;height:var(--top-h);background:var(--navy-d);border-bottom:1px solid var(--brd);
-  display:flex;align-items:center;justify-content:space-between;padding:0 10px;gap:6px;z-index:20}
-.top-logo{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.logo-svg{width:28px;height:28px;flex-shrink:0}
-.logo-name{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--gold);letter-spacing:.13em;line-height:1}
-.logo-tag{font-family:var(--mono);font-size:8px;color:var(--txtm);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
-.yr-ctrl{display:flex;align-items:center;gap:3px}
-.yr-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;
+#topbar{flex-shrink:0;height:var(--top-h);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;z-index:20}
+.top-logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.logo-svg{width:34px;height:34px;flex-shrink:0}
+.logo-name{font-size:var(--fs-h3);font-weight:700;color:var(--ink);line-height:1}
+.logo-tag{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint);margin-top:2px}
+.yr-ctrl{display:flex;align-items:center;gap:4px}
+.yr-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:18px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;user-select:none;transition:background .12s;flex-shrink:0}
-.yr-btn:active{background:var(--surf2)}
-.yr-disp{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--gold);min-width:40px;text-align:center;cursor:pointer;line-height:30px}
-.k-pill{display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:3px 8px;flex-shrink:0}
-.k-lbl{font-family:var(--mono);font-size:7px;color:var(--txtm);text-transform:uppercase}
-.k-val{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--gold)}
-.k-bw{width:30px;height:3px;background:rgba(186,209,205,.12);border-radius:2px;overflow:hidden}
-.k-bf{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:2px;transition:width .4s}
+.yr-btn:active{background:var(--primary-dark)}
+.yr-disp{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;color:var(--mint);min-width:44px;text-align:center;cursor:pointer;line-height:36px}
+.k-pill{display:none;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:4px 10px;flex-shrink:0}
+@media(min-width:460px){.k-pill{display:flex}}
+.k-lbl{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)}
+.k-val{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;color:var(--mint)}
 
 /* ── CONTENT SCROLL AREA ── */
 #content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
-  padding:10px 10px calc(var(--tab-h) + 12px)}
+  padding:14px 14px calc(var(--tab-h) + 16px)}
 
 /* ── BOTTOM TAB BAR ── */
-#tabbar{flex-shrink:0;height:var(--tab-h);background:var(--navy-d);border-top:1px solid var(--brd);display:flex;position:relative;z-index:20}
-.tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  cursor:pointer;touch-action:manipulation;color:var(--txtm);font-size:8px;font-weight:500;
-  padding:4px 2px 8px;border:none;background:transparent;transition:color .15s;
+#tabbar{flex-shrink:0;height:var(--tab-h);background:var(--primary-dark);border-top:1px solid var(--border);display:flex;position:relative;z-index:20}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;touch-action:manipulation;color:var(--text-faint);font-size:var(--fs-xs);font-weight:600;
+  padding:6px 2px 10px;border:none;background:transparent;transition:color .15s;
   user-select:none;-webkit-tap-highlight-color:transparent;position:relative;min-width:0}
-.tb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;flex-shrink:0}
+.tb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex-shrink:0}
 .tb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
-.tb.active{color:var(--gold)}
-.tline{position:absolute;top:0;left:0;height:2px;background:var(--gold);border-radius:0 0 3px 3px;
+.tb.active{color:var(--mint)}
+.tline{position:absolute;top:0;left:0;height:2px;background:var(--mint);border-radius:0 0 3px 3px;
   transition:left .22s cubic-bezier(.4,0,.2,1),width .22s cubic-bezier(.4,0,.2,1);pointer-events:none}
-.tab-dot{width:6px;height:6px;border-radius:50%;background:var(--red-l);
-  position:absolute;top:4px;right:calc(50% - 16px);pointer-events:none}
+.tab-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);
+  position:absolute;top:5px;right:calc(50% - 18px);pointer-events:none}
 
 /* ── VIEWS ── */
 .view{display:none}.view.active{display:block;animation:fi .16s ease}
 @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
 /* ── BADGES ── */
-.badge{font-family:var(--mono);font-size:7px;padding:2px 6px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
-.bg{background:rgba(209,172,0,.12);color:var(--gold);border:1px solid rgba(209,172,0,.22)}
-.bgg{background:rgba(36,130,50,.12);color:var(--green-l);border:1px solid rgba(36,130,50,.22)}
-.bp{background:rgba(113,62,90,.15);color:var(--plum-l);border:1px solid rgba(113,62,90,.22)}
-.bm{background:rgba(186,209,205,.08);color:var(--mist);border:1px solid rgba(186,209,205,.16)}
-.br{background:rgba(224,90,90,.1);color:var(--red-l);border:1px solid rgba(224,90,90,.22)}
+.badge{font-family:var(--font-mono);font-size:var(--fs-xs);padding:4px 9px;border-radius:6px;letter-spacing:.03em;white-space:nowrap}
+.bg{background:rgba(209,172,0,.15);color:var(--sun-l);border:1px solid rgba(209,172,0,.3)}
+.bgg{background:rgba(63,166,107,.15);color:var(--green-l);border:1px solid rgba(63,166,107,.3)}
+.bp{background:rgba(230,172,190,.15);color:var(--lime);border:1px solid rgba(230,172,190,.3)}
+.bm{background:rgba(224,224,224,.1);color:var(--slate);border:1px solid var(--border)}
+.br{background:rgba(224,90,90,.12);color:#e88;border:1px solid rgba(224,90,90,.3)}
 
 /* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
-.kpi-card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:10px 10px 8px;position:relative;overflow:hidden}
-.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
-.kpi-card.cg::after{background:var(--gold)}.kpi-card.cgr::after{background:var(--green)}.kpi-card.cp::after{background:var(--plum)}.kpi-card.cm::after{background:var(--mist)}.kpi-card.ca::after{background:var(--green)}
-.kpi-lbl{font-family:var(--mono);font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--txtm);margin-bottom:4px}
-.kpi-v{font-size:22px;font-weight:700;line-height:1;letter-spacing:-.02em}
-.kpi-card.cg .kpi-v{color:var(--gold)}.kpi-card.cgr .kpi-v{color:var(--green-l)}.kpi-card.cp .kpi-v{color:var(--plum-l)}.kpi-card.cm .kpi-v{color:var(--mist)}.kpi-card.ca .kpi-v{color:var(--green-l)}
-.kpi-s{font-size:9px;color:var(--txtm);margin-top:2px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.kpi-card{padding:14px 14px 12px}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;z-index:1}
+.kpi-card.cg::after{background:var(--sun)}.kpi-card.cgr::after{background:var(--mint)}.kpi-card.cp::after{background:var(--lime)}.kpi-card.cm::after{background:var(--slate)}.kpi-card.ca::after{background:var(--green)}
+.kpi-lbl{font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+.kpi-v{font-size:var(--fs-h1);font-weight:800;line-height:1;letter-spacing:-.01em}
+.kpi-card.cg .kpi-v{color:var(--sun-l)}.kpi-card.cgr .kpi-v{color:var(--mint)}.kpi-card.cp .kpi-v{color:var(--lime)}.kpi-card.cm .kpi-v{color:var(--slate)}.kpi-card.ca .kpi-v{color:var(--green-l)}
+.kpi-s{font-size:var(--fs-sm);color:var(--text-faint);margin-top:3px}
 
 /* ── SECTION HEAD ── */
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:14px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:20px}
 .sh:first-child{margin-top:0}
-.sh-t{font-size:10px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:5px}
-.sh-t::before{content:'';display:block;width:3px;height:11px;background:var(--gold);border-radius:2px}
+.sh-t{font-size:var(--fs-h3);font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px}
+.sh-t::before{content:'';display:block;width:4px;height:16px;background:var(--mint);border-radius:2px}
 
 /* ── Q CARDS ── */
-.q-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
-.q-card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:9px 10px 8px}
-.q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.q-lbl{font-family:var(--mono);font-size:9px;font-weight:500;display:flex;align-items:center;gap:4px}
-.qdot{width:6px;height:6px;border-radius:50%}
-.q-num{font-size:18px;font-weight:700;line-height:1}
-.q-desc{font-size:9px;color:var(--txtm);margin-top:1px}
-.qbar{height:3px;background:rgba(186,209,205,.09);border-radius:2px;margin-top:6px;overflow:hidden}
+.q-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.q-card{padding:12px 14px 10px}
+.q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.q-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;gap:5px}
+.qdot{width:8px;height:8px;border-radius:50%}
+.q-num{font-size:var(--fs-h2);font-weight:800;line-height:1}
+.q-desc{font-size:var(--fs-sm);color:var(--text-faint);margin-top:2px}
+.qbar{height:4px;background:rgba(124,147,184,.14);border-radius:2px;margin-top:8px;overflow:hidden}
 .qbf{height:100%;border-radius:2px;transition:width .5s}
-.qc1 .qdot,.qc1 .q-num{color:var(--mist)}.qc1 .qdot{background:var(--mist)}.qc1 .qbf{background:var(--mist)}
-.qc2 .qdot,.qc2 .q-num{color:var(--gold)}.qc2 .qdot{background:var(--gold)}.qc2 .qbf{background:var(--gold)}
-.qc3 .qdot,.qc3 .q-num{color:var(--green-l)}.qc3 .qdot{background:var(--green)}.qc3 .qbf{background:var(--green)}
-.qc4 .qdot,.qc4 .q-num{color:var(--plum-l)}.qc4 .qdot{background:var(--plum)}.qc4 .qbf{background:var(--plum)}
+.qc1 .qdot,.qc1 .q-num{color:var(--slate)}.qc1 .qdot{background:var(--slate)}.qc1 .qbf{background:var(--slate)}
+.qc2 .qdot,.qc2 .q-num{color:var(--sun-l)}.qc2 .qdot{background:var(--sun)}.qc2 .qbf{background:var(--sun)}
+.qc3 .qdot,.qc3 .q-num{color:var(--mint)}.qc3 .qdot{background:var(--mint)}.qc3 .qbf{background:var(--mint)}
+.qc4 .qdot,.qc4 .q-num{color:var(--lime)}.qc4 .qdot{background:var(--lime)}.qc4 .qbf{background:var(--lime)}
 
 /* ── BUTTONS ── */
-.btn-gen{width:100%;padding:13px;background:var(--gold);color:var(--navy-d);border:none;border-radius:var(--r);
-  font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,transform .1s;margin-bottom:8px;min-height:44px}
-.btn-gen:active{background:var(--gold-l);transform:scale(.98)}.btn-gen.loading{opacity:.65;pointer-events:none}
-.btn-sec{width:100%;padding:11px;background:transparent;color:var(--txtm);border:1px solid var(--brd);
-  border-radius:var(--r);font-family:var(--sans);font-size:11px;font-weight:500;cursor:pointer;
-  touch-action:manipulation;transition:border-color .15s,color .15s;margin-bottom:12px;min-height:44px}
-.btn-sec:active{border-color:var(--mist);color:var(--txt)}
+.btn-gen{width:100%;padding:16px;background:var(--sun);color:var(--primary-dark);border:none;border-radius:var(--r);
+  font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;gap:9px;transition:background .15s,transform .1s;margin-bottom:10px;min-height:52px}
+.btn-gen:active{background:var(--sun-l);transform:scale(.98)}.btn-gen.loading{opacity:.65;pointer-events:none}
+.btn-sec{width:100%;padding:13px;background:transparent;color:var(--text-faint);border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--font-sans);font-size:var(--fs-body);font-weight:600;cursor:pointer;
+  touch-action:manipulation;transition:border-color .15s,color .15s;margin-bottom:16px;min-height:48px}
+.btn-sec:active{border-color:var(--primary-light);color:var(--ink)}
 
 /* ── RESULT CARDS ── */
-.res-cards{display:flex;flex-direction:column;gap:6px}
-.res-card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:10px 11px;
-  display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-cards{display:flex;flex-direction:column;gap:8px}
+.res-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .rc-left{flex:1;min-width:0}
-.rc-tag{font-family:var(--mono);font-size:7px;padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:3px}
-.ta{background:rgba(186,209,205,.12);color:var(--mist)}.tb2{background:rgba(209,172,0,.12);color:var(--gold)}.tc{background:rgba(36,130,50,.12);color:var(--green-l)}
-.rc-dates{font-size:11px;color:var(--txt);font-weight:500}.rc-ok{font-size:9px;color:var(--green-l);margin-top:1px}
-.rc-days{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--gold);white-space:nowrap}
+.rc-tag{font-family:var(--font-mono);font-size:var(--fs-xs);padding:3px 7px;border-radius:5px;display:inline-block;margin-bottom:4px}
+.ta{background:rgba(224,224,224,.14);color:var(--slate)}.tb2{background:rgba(209,172,0,.15);color:var(--sun-l)}.tc{background:rgba(168,190,221,.15);color:var(--mint)}
+.rc-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.rc-ok{font-size:var(--fs-sm);color:var(--green-l);margin-top:2px}
+.rc-days{font-family:var(--font-mono);font-size:var(--fs-h2);font-weight:800;color:var(--sun-l);white-space:nowrap}
 
 /* ── PLAN BUILDER ── */
-.plan-hdr{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;margin-bottom:10px}
-.plan-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.plan-title{font-size:11px;font-weight:700;color:var(--txt)}
-.pbudget-bar{height:5px;background:rgba(186,209,205,.1);border-radius:3px;overflow:hidden;margin-bottom:3px}
-.pbudget-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .4s,background .4s}
-.pbudget-nums{display:flex;justify-content:space-between}
-.pbn{font-family:var(--mono);font-size:8px;color:var(--txtm)}.pbn span{color:var(--gold);font-weight:600}
-.q-sel{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
-.qs-hd{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surf2);border-bottom:1px solid var(--brd)}
-.qs-q{font-family:var(--mono);font-size:9px;font-weight:600;display:flex;align-items:center;gap:5px}
-.qs-status{font-family:var(--mono);font-size:8px}
-.qs-body{padding:9px 12px}
-.opt-row{display:flex;align-items:center;gap:9px;padding:9px 9px;border-radius:7px;margin-bottom:5px;cursor:pointer;
-  border:1.5px solid var(--brd);background:var(--surf3);transition:border-color .15s,background .15s;
-  touch-action:manipulation;min-height:44px}
-.opt-row:last-child{margin-bottom:0}.opt-row.sel{border-color:var(--gold);background:rgba(209,172,0,.08)}
-.opt-row.sel .opt-chk{border-color:var(--gold);background:var(--gold)}.opt-row.sel .opt-chk::after{opacity:1}
-.opt-chk{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--brd2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
-.opt-chk::after{content:'';position:absolute;top:3px;left:3px;width:8px;height:8px;border-radius:50%;background:var(--navy-d);opacity:0;transition:opacity .12s}
-.opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--mono);font-size:8px;margin-bottom:1px}
-.opt-dates{font-size:10px;color:var(--txt);font-weight:500}.opt-days{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap}
-.none-row .opt-dates{color:var(--txtm)}.none-row{border-style:dashed}
-.btn-save{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
-  font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,transform .1s;
-  margin-top:12px;margin-bottom:5px;min-height:44px}
+.plan-hdr{padding:13px 15px;margin-bottom:14px}
+.plan-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.plan-title{font-size:var(--fs-bodylg);font-weight:700;color:var(--ink)}
+.pbudget-bar{height:6px;background:rgba(124,147,184,.14);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.pbudget-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--mint),var(--sun));transition:width .4s,background .4s}
+.pbudget-nums{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.pbn{font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--text-faint)}.pbn span{color:var(--sun-l);font-weight:700}
+.q-sel{margin-bottom:10px;overflow:hidden}
+.qs-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:rgba(124,147,184,.08);border-bottom:1px solid var(--border)}
+.qs-q{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;display:flex;align-items:center;gap:6px}
+.qs-status{font-family:var(--font-mono);font-size:var(--fs-xs)}
+.qs-body{padding:12px 15px}
+.opt-row{display:flex;align-items:center;gap:11px;padding:12px 12px;border-radius:10px;margin-bottom:7px;cursor:pointer;
+  border:1.5px solid var(--border);background:rgba(124,147,184,.06);transition:border-color .15s,background .15s;
+  touch-action:manipulation;min-height:52px}
+.opt-row:last-child{margin-bottom:0}.opt-row.sel{border-color:var(--sun);background:rgba(209,172,0,.1)}
+.opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
+.opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
+.opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
+.opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
+.opt-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.opt-days{font-family:var(--font-mono);font-size:var(--fs-h3);font-weight:800;color:var(--sun-l);white-space:nowrap}
+.none-row .opt-dates{color:var(--text-faint)}.none-row{border-style:dashed}
+.btn-save{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
+  font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;gap:9px;transition:background .15s,transform .1s;
+  margin-top:16px;margin-bottom:7px;min-height:52px}
 .btn-save:active{background:var(--green-l);transform:scale(.98)}.btn-save:disabled{opacity:.4;pointer-events:none}
-.saved-plan{background:var(--surf);border:1px solid rgba(36,130,50,.3);border-radius:var(--r);padding:10px 12px;margin-bottom:8px}
-.sp-title{font-size:10px;font-weight:600;color:var(--green-l);display:flex;align-items:center;gap:5px;margin-bottom:7px}
-.sp-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid rgba(186,209,205,.05)}
-.sp-row:last-child{border-bottom:none}.sp-q{font-family:var(--mono);font-size:8px;min-width:20px;color:var(--txtm)}
-.sp-date{font-size:10px;flex:1;color:var(--txt)}.sp-days{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--gold)}
-.sp-none{font-size:10px;color:var(--txtm);flex:1;font-style:italic}
+.saved-plan{padding:13px 15px;margin-bottom:10px}
+.sp-title{font-size:var(--fs-body);font-weight:700;color:var(--green-l);display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.sp-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)}
+.sp-row:last-child{border-bottom:none}.sp-q{font-family:var(--font-mono);font-size:var(--fs-sm);min-width:26px;color:var(--text-faint)}
+.sp-date{font-size:var(--fs-body);flex:1;color:var(--ink)}.sp-days{font-family:var(--font-mono);font-size:var(--fs-body);font-weight:700;color:var(--sun-l)}
+.sp-none{font-size:var(--fs-body);color:var(--text-faint);flex:1;font-style:italic}
 
-/* ── CALENDAR ── */
-.cal-legend{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
-.leg{display:flex;align-items:center;gap:3px;font-size:8px;color:var(--txtm)}
-.ld{width:7px;height:7px;border-radius:2px}
-.lft{background:rgba(209,172,0,.5)}.lfe{background:rgba(113,62,90,.5)}.lur{background:rgba(36,130,50,.5)}.lpu{background:rgba(186,209,205,.18)}
-.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.mc{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:8px;overflow:hidden}
-.mn{font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--txtm);margin-bottom:4px}
-.cg7{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
-.cdh{font-family:var(--mono);font-size:6px;color:var(--txtm);text-align:center;padding-bottom:2px}
-.cd{font-size:7px;text-align:center;padding:2px 0;border-radius:2px;line-height:1.5}
-.cd.e{opacity:0}.cd.ft{background:rgba(209,172,0,.2);color:var(--gold);font-weight:600}
-.cd.fe{background:rgba(113,62,90,.2);color:var(--plum-l)}.cd.ur{background:rgba(36,130,50,.28);color:#7adf8a;font-weight:600}
-.cd.pu{background:rgba(186,209,205,.09);color:var(--mist)}.cd.su{color:rgba(228,238,236,.22)}
+/* ── KALENDER ── */
+.cal-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.leg{display:flex;align-items:center;gap:5px;font-size:var(--fs-sm);color:var(--text-faint)}
+.ld{width:9px;height:9px;border-radius:2px}
+.lft{background:rgba(209,172,0,.5)}.lfe{background:rgba(230,172,190,.5)}.lur{background:rgba(63,166,107,.5)}.lpu{background:rgba(124,147,184,.25)}
+.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mc{padding:10px}
+.mn{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+.cg7{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cdh{font-family:var(--font-mono);font-size:9px;color:var(--text-faint);text-align:center;padding-bottom:3px}
+.cd{font-size:10px;text-align:center;padding:3px 0;border-radius:3px;line-height:1.6}
+.cd.e{opacity:0}.cd.ft{background:rgba(209,172,0,.22);color:var(--sun-l);font-weight:700}
+.cd.fe{background:rgba(230,172,190,.22);color:var(--lime)}.cd.ur{background:rgba(63,166,107,.3);color:var(--green-l);font-weight:700}
+.cd.pu{background:rgba(124,147,184,.15);color:var(--mint)}.cd.su{color:rgba(228,238,236,.22)}
 
-/* ════════════════════════════
-   GENEHMIGUNG — vereinfacht
-   Plan gespeichert → automatisch AUSSTEHEND
-   Einzige Aktion: 1 Tap "Genehmigen"
-   Kein Genehmigen = gilt als abgelehnt/offen
-════════════════════════════ */
-.appr-banner{border-radius:var(--r);padding:14px 12px;margin-bottom:12px;display:flex;align-items:flex-start;gap:12px}
-.appr-banner.pending{background:rgba(209,172,0,.07);border:1px solid rgba(209,172,0,.22)}
-.appr-banner.approved{background:rgba(36,130,50,.09);border:1px solid rgba(36,130,50,.28)}
-.ab-icon{font-size:24px;line-height:1;flex-shrink:0;margin-top:1px}
-.ab-title{font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.2}
-.appr-banner.pending .ab-title{color:var(--gold)}
+/* ── GENEHMIGUNG ── */
+.appr-banner{border-radius:var(--r);padding:18px 15px;margin-bottom:16px;display:flex;align-items:flex-start;gap:14px}
+.appr-banner.pending{background:rgba(209,172,0,.08);border:1px solid rgba(209,172,0,.25)}
+.appr-banner.approved{background:rgba(63,166,107,.1);border:1px solid rgba(63,166,107,.3)}
+.ab-icon{font-size:28px;line-height:1;flex-shrink:0;margin-top:1px}
+.ab-title{font-size:var(--fs-bodylg);font-weight:700;margin-bottom:4px;line-height:1.25}
+.appr-banner.pending .ab-title{color:var(--sun-l)}
 .appr-banner.approved .ab-title{color:var(--green-l)}
-.ab-sub{font-size:10px;color:var(--txtm);line-height:1.4}
-.ab-ts{font-family:var(--mono);font-size:8px;color:var(--txtm);margin-top:3px}
+.ab-sub{font-size:var(--fs-sm);color:var(--text-faint);line-height:1.5}
+.ab-ts{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint);margin-top:4px}
 
-/* Plan-Karte im Genehmigt-Tab */
-.appr-plan-card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:12px;position:relative}
-.appr-plan-head{background:var(--surf2);border-bottom:1px solid var(--brd);padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
-.appr-plan-title{font-size:11px;font-weight:600;color:var(--txt)}
-.appr-plan-body{padding:10px 12px;display:flex;flex-direction:column;gap:5px}
-.ap-row{display:flex;align-items:center;gap:7px;padding:5px 9px;background:var(--surf3);border-radius:6px;border:1px solid var(--brd)}
-.ap-q{font-family:var(--mono);font-size:8px;color:var(--txtm);min-width:20px}
-.ap-date{font-size:10px;flex:1;color:var(--txt);font-weight:500}
-.ap-days{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--gold)}
-.ap-none{font-size:10px;color:var(--txtm);flex:1;font-style:italic}
+.appr-plan-card{overflow:hidden;margin-bottom:16px;position:relative}
+.appr-plan-head{background:rgba(124,147,184,.08);border-bottom:1px solid var(--border);padding:11px 15px;display:flex;align-items:center;justify-content:space-between}
+.appr-plan-title{font-size:var(--fs-body);font-weight:700;color:var(--ink)}
+.appr-plan-body{padding:13px 15px;display:flex;flex-direction:column;gap:7px}
+.ap-row{display:flex;align-items:center;gap:9px;padding:7px 11px;background:rgba(124,147,184,.06);border-radius:8px;border:1px solid var(--border)}
+.ap-q{font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--text-faint);min-width:26px}
+.ap-date{font-size:var(--fs-body);flex:1;color:var(--ink);font-weight:600}
+.ap-days{font-family:var(--font-mono);font-size:var(--fs-body);font-weight:700;color:var(--sun-l)}
+.ap-none{font-size:var(--fs-body);color:var(--text-faint);flex:1;font-style:italic}
 
-/* Stempel */
-.stamp{position:absolute;top:50%;right:10px;transform:translateY(-50%) rotate(-8deg);
-  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;
-  padding:3px 8px;border-radius:4px;border:2px solid;pointer-events:none;opacity:.9}
+.stamp{position:absolute;top:50%;right:12px;transform:translateY(-50%) rotate(-8deg);
+  font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;letter-spacing:.1em;
+  padding:4px 10px;border-radius:5px;border:2px solid;pointer-events:none;opacity:.9}
 .stamp.approved{color:var(--green-l);border-color:var(--green-l)}
 
-/* GENEHMIGEN-Button — großer, prominenter 1-Tap */
-.btn-approve-big{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
-  font-family:var(--sans);font-size:16px;font-weight:800;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s,transform .1s;
-  margin-bottom:8px;min-height:52px;letter-spacing:.02em}
+.btn-approve-big{width:100%;padding:19px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
+  font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:800;cursor:pointer;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;gap:11px;transition:background .15s,transform .1s;
+  margin-bottom:10px;min-height:56px;letter-spacing:.01em}
 .btn-approve-big:active{background:var(--green-l);transform:scale(.97)}
 .btn-approve-big:disabled{opacity:.4;pointer-events:none}
-.appr-hint{font-size:9px;color:var(--txtm);text-align:center;margin-bottom:12px;line-height:1.5}
+.appr-hint{font-size:var(--fs-sm);color:var(--text-faint);text-align:center;margin-bottom:16px;line-height:1.5}
 
-/* Zurücksetzen */
-.btn-revoke{width:100%;padding:10px;background:transparent;color:var(--txtm);border:1px solid var(--brd);
-  border-radius:var(--r);font-family:var(--sans);font-size:11px;font-weight:500;cursor:pointer;
-  touch-action:manipulation;transition:all .15s;min-height:44px;margin-bottom:10px}
-.btn-revoke:active{border-color:var(--mist);color:var(--txt)}
+.btn-revoke{width:100%;padding:13px;background:transparent;color:var(--text-faint);border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--font-sans);font-size:var(--fs-body);font-weight:600;cursor:pointer;
+  touch-action:manipulation;transition:all .15s;min-height:48px;margin-bottom:12px}
+.btn-revoke:active{border-color:var(--primary-light);color:var(--ink)}
 
-/* Verlauf */
-.hist-wrap{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
-.hist-head{background:var(--surf2);border-bottom:1px solid var(--brd);padding:7px 12px;
-  font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--txtm)}
-.hist-body{padding:8px 12px}
-.hist-item{display:flex;gap:9px;padding:7px 0;position:relative}
-.hist-item:not(:last-child)::after{content:'';position:absolute;left:9px;top:24px;bottom:0;width:1px;background:var(--brd)}
-.h-icon{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;position:relative;z-index:1}
-.h-icon.ok{background:rgba(36,130,50,.18);border:1px solid rgba(36,130,50,.3);color:var(--green-l)}
-.h-icon.rst{background:rgba(186,209,205,.1);border:1px solid var(--brd);color:var(--mist)}
+.hist-wrap{overflow:hidden;margin-bottom:12px}
+.hist-head{background:rgba(124,147,184,.08);border-bottom:1px solid var(--border);padding:9px 15px;
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)}
+.hist-body{padding:10px 15px}
+.hist-item{display:flex;gap:11px;padding:9px 0;position:relative}
+.hist-item:not(:last-child)::after{content:'';position:absolute;left:11px;top:28px;bottom:0;width:1px;background:var(--border)}
+.h-icon{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;z-index:1}
+.h-icon.ok{background:rgba(63,166,107,.2);border:1px solid rgba(63,166,107,.35);color:var(--green-l)}
+.h-icon.rst{background:rgba(124,147,184,.12);border:1px solid var(--border);color:var(--mint)}
 .h-text{flex:1;padding-top:1px}
-.h-main{font-size:11px;font-weight:500;color:var(--txt)}
-.h-sub{font-size:9px;color:var(--txtm);margin-top:1px}
-.h-ts{font-family:var(--mono);font-size:8px;color:var(--txtm);margin-top:1px}
+.h-main{font-size:var(--fs-body);font-weight:600;color:var(--ink)}
+.h-sub{font-size:var(--fs-sm);color:var(--text-faint);margin-top:1px}
+.h-ts{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint);margin-top:1px}
 
 /* ════════════════
-   SETTINGS
+   SETTINGS — vereinfachte Eingabelogik nach AERIS-Vorbild
+   (native input/select, Label über Feld, keine Custom-Stepper/Chips)
 ════════════════ */
-.sg{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
-.sg-title{font-family:var(--mono);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--txtm);padding:8px 12px 6px;background:var(--surf2);border-bottom:1px solid var(--brd)}
-.sr{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border-bottom:1px solid rgba(186,209,205,.05);gap:10px;min-height:52px}
-.sr:last-child{border-bottom:none}.sr-left{flex:1;min-width:0}
-.sr-label{font-size:12px;font-weight:500;color:var(--txt);margin-bottom:1px}
-.sr-desc{font-size:9px;color:var(--txtm);line-height:1.4}
-.sr-right{flex-shrink:0;display:flex;align-items:center;gap:7px}
-.toggle{position:relative;width:44px;height:26px;cursor:pointer;touch-action:manipulation;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;border-radius:13px;background:var(--surf3);border:1px solid var(--brd2);transition:background .2s,border-color .2s}
-.toggle input:checked~.toggle-track{background:var(--green);border-color:var(--green)}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.toggle input:checked~.toggle-thumb{transform:translateX(18px)}
-.num-input{display:flex;align-items:center;background:var(--surf2);border:1px solid var(--brd2);border-radius:7px;overflow:hidden}
-.num-btn{width:34px;height:34px;background:transparent;border:none;color:var(--txt);font-size:18px;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;transition:background .12s;user-select:none;flex-shrink:0}
-.num-btn:active{background:var(--surf3)}
-.num-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--gold);min-width:34px;text-align:center;padding:0 2px}
-.chip-group{display:flex;gap:4px;flex-wrap:wrap}
-.chip{font-family:var(--mono);font-size:8px;padding:5px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--surf3);color:var(--txtm);cursor:pointer;touch-action:manipulation;transition:all .15s;user-select:none;min-height:30px;display:flex;align-items:center}
-.chip.sel{background:rgba(209,172,0,.12);border-color:var(--gold);color:var(--gold)}
-.chip:active{transform:scale(.94)}
-.txt-input{background:var(--surf2);border:1px solid var(--brd2);border-radius:7px;padding:7px 9px;font-family:var(--sans);font-size:12px;color:var(--txt);width:100%;outline:none;transition:border-color .15s}
-.txt-input:focus{border-color:var(--gold)}.txt-input::placeholder{color:var(--txtm)}
-.date-pair{display:flex;gap:7px;width:100%}
-.date-field{flex:1;min-width:0}
-.date-label-sm{font-family:var(--mono);font-size:7px;color:var(--txtm);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
-.date-in{background:var(--surf2);border:1px solid var(--brd2);border-radius:7px;padding:7px 8px;font-family:var(--mono);font-size:10px;color:var(--txt);width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none}
-.date-in:focus{border-color:var(--gold)}
-.sperr-list{display:flex;flex-direction:column;gap:5px;padding:9px 12px}
-.sperr-item{display:flex;align-items:center;gap:7px;background:var(--surf3);border:1px solid var(--brd);border-radius:7px;padding:7px 9px}
-.sperr-dot{width:7px;height:7px;border-radius:2px;background:var(--plum);flex-shrink:0}
-.sperr-text{flex:1;font-size:10px;color:var(--txt)}
-.sperr-del{width:28px;height:28px;background:transparent;border:none;color:var(--txtm);font-size:15px;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:color .12s;flex-shrink:0}
-.sperr-del:active{color:var(--red-l)}
-.sperr-add{display:flex;flex-direction:column;gap:7px;padding:9px 12px;border-top:1px solid var(--brd)}
-.sperr-add-row{display:flex;gap:7px;align-items:flex-end}
-.btn-add-sz{padding:8px 12px;background:rgba(209,172,0,.12);border:1px solid rgba(209,172,0,.25);border-radius:7px;color:var(--gold);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:background .15s;min-height:36px}
-.btn-add-sz:active{background:rgba(209,172,0,.2)}
-.btn-cfg-save{width:100%;padding:13px;background:var(--navy);color:var(--txt);border:1px solid var(--gold);border-radius:var(--r);
-  font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,transform .1s;
-  margin-top:14px;margin-bottom:6px;min-height:44px}
-.btn-cfg-save:active{background:var(--navy-d);transform:scale(.98)}
-.info-box{background:rgba(209,172,0,.06);border:1px solid rgba(209,172,0,.18);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;font-size:10px;color:var(--txtm);line-height:1.5}
-.info-box strong{color:var(--gold)}
-.q-sum-row{padding:7px 12px 10px;display:flex;justify-content:space-between;align-items:center}
+.sg{overflow:hidden;margin-bottom:12px}
+.sg-title{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:10px 15px 8px;background:rgba(124,147,184,.08);border-bottom:1px solid var(--border)}
+.field-row{padding:13px 15px;border-bottom:1px solid var(--border)}
+.field-row:last-child{border-bottom:none}
+.field-label{display:block;font-size:var(--fs-body);font-weight:600;color:var(--ink);margin-bottom:2px}
+.field-desc{font-size:var(--fs-sm);color:var(--text-faint);margin-bottom:8px;line-height:1.4}
+.field{box-sizing:border-box;width:100%;background:linear-gradient(163deg,var(--bg2) 0%,var(--primary-dark) 100%);
+  border:1px solid var(--border);border-radius:12px;padding:13px 14px;color:var(--ink);
+  font-family:var(--font-sans);font-size:var(--fs-bodylg);
+  box-shadow:inset 3px 5px 10px rgba(0,0,0,.5),inset -2px -2px 5px rgba(124,147,184,.1);
+  min-height:50px;transition:box-shadow .3s,border-color .3s;-webkit-appearance:none;appearance:none}
+.field:focus{outline:none;border-color:var(--primary-light);
+  box-shadow:inset 3px 5px 10px rgba(0,0,0,.5),inset -2px -2px 5px rgba(124,147,184,.1),0 0 0 3px rgba(124,147,184,.25)}
+.field::placeholder{color:var(--text-faint)}
+select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%237C93B8'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
+.field-check-row{display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;min-height:44px}
+.field-check{width:24px;height:24px;accent-color:var(--sun);flex-shrink:0;cursor:pointer}
+.sperr-list{display:flex;flex-direction:column;gap:7px;padding:13px 15px}
+.sperr-item{display:flex;align-items:center;gap:9px;background:rgba(124,147,184,.06);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.sperr-dot{width:9px;height:9px;border-radius:2px;background:var(--lime);flex-shrink:0}
+.sperr-text{flex:1;font-size:var(--fs-sm);color:var(--ink)}
+.sperr-del{width:32px;height:32px;background:transparent;border:none;color:var(--text-faint);font-size:17px;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:color .12s;flex-shrink:0}
+.sperr-del:active{color:#e88}
+.sperr-add{display:flex;flex-direction:column;gap:9px;padding:13px 15px;border-top:1px solid var(--border)}
+.sperr-add-row{display:flex;gap:9px;align-items:flex-end}
+.btn-add-sz{padding:12px 16px;background:rgba(209,172,0,.15);border:1px solid rgba(209,172,0,.3);border-radius:10px;color:var(--sun-l);font-family:var(--font-sans);font-size:var(--fs-body);font-weight:700;cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:background .15s;min-height:44px}
+.btn-add-sz:active{background:rgba(209,172,0,.25)}
+.btn-cfg-save{width:100%;padding:16px;background:var(--primary-dark);color:var(--ink);border:1px solid var(--sun);border-radius:var(--r);
+  font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;gap:9px;transition:background .15s,transform .1s;
+  margin-top:18px;margin-bottom:8px;min-height:52px}
+.btn-cfg-save:active{background:var(--bg2);transform:scale(.98)}
+.info-box{padding:13px 15px;margin-bottom:14px;font-size:var(--fs-sm);color:var(--text-faint);line-height:1.6;
+  background:rgba(209,172,0,.06);border:1px solid rgba(209,172,0,.2);border-radius:var(--r)}
+.info-box strong{color:var(--sun-l)}
+.q-sum-row{padding:9px 15px 12px;display:flex;justify-content:space-between;align-items:center}
 
 /* ── LOG ── */
-.log-wrap{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
-.log-top{background:var(--surf2);border-bottom:1px solid var(--brd);padding:7px 12px;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8px;color:var(--txtm)}
-.ldot{width:6px;height:6px;border-radius:50%;background:var(--green-l);animation:blink 2s infinite}
+.log-wrap{overflow:hidden}
+.log-top{background:rgba(124,147,184,.08);border-bottom:1px solid var(--border);padding:9px 15px;display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--green-l);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.log-body{padding:8px 12px;font-family:var(--mono);font-size:9px}
-.ll{display:flex;gap:6px;padding:3px 0;border-bottom:1px solid rgba(186,209,205,.04)}
-.ll:last-child{border-bottom:none}.lts{color:var(--txtm);min-width:56px;font-size:8px}
-.ltype{min-width:56px;font-size:7px;letter-spacing:.04em;text-transform:uppercase}
-.ltype.feiertag{color:var(--gold)}.ltype.ferien{color:var(--plum-l)}.ltype.puffer{color:var(--green-l)}.ltype.info{color:var(--mist)}.ltype.settings{color:var(--plum-l)}.ltype.approved{color:var(--green-l)}
-.lmsg{color:var(--txt);flex:1;font-size:8px}
+.log-body{padding:10px 15px;font-family:var(--font-mono);font-size:var(--fs-sm)}
+.ll{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)}
+.ll:last-child{border-bottom:none}.lts{color:var(--text-faint);min-width:64px;font-size:var(--fs-xs)}
+.ltype{min-width:64px;font-size:var(--fs-xs);letter-spacing:.04em;text-transform:uppercase}
+.ltype.feiertag{color:var(--sun-l)}.ltype.ferien{color:var(--lime)}.ltype.puffer{color:var(--green-l)}.ltype.info{color:var(--mint)}.ltype.settings{color:var(--lime)}.ltype.approved{color:var(--green-l)}
+.lmsg{color:var(--ink);flex:1;font-size:var(--fs-xs)}
 
 /* ── MISC ── */
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,48,73,.3);border-top-color:var(--navy-d);border-radius:50%;animation:rot .7s linear infinite}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(23,39,63,.3);border-top-color:var(--primary-dark);border-radius:50%;animation:rot .7s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:32px 14px;color:var(--txtm);font-size:11px}
-.ei{font-size:24px;opacity:.35;margin-bottom:8px}
+.empty{text-align:center;padding:40px 16px;color:var(--text-faint);font-size:var(--fs-body)}
+.ei{font-size:28px;opacity:.4;margin-bottom:10px}
 .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:flex-end;justify-content:center}
 .mbg.open{display:flex}
-.mbox{background:var(--surf);border:1px solid var(--brd);border-radius:14px 14px 0 0;padding:16px 12px 30px;width:100%;max-width:480px}
-.mbox-t{font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;color:var(--txt)}
-.yr-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.yr-o{padding:12px 8px;text-align:center;background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--txtm);transition:all .15s;touch-action:manipulation;min-height:44px}
-.yr-o.sel{background:rgba(209,172,0,.14);border-color:var(--gold);color:var(--gold)}
+.mbox{background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:18px 14px 32px;width:100%;max-width:480px}
+.mbox-t{font-size:var(--fs-bodylg);font-weight:700;text-align:center;margin-bottom:14px;color:var(--ink)}
+.yr-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.yr-o{padding:14px 9px;text-align:center;background:rgba(124,147,184,.08);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:var(--font-mono);font-size:var(--fs-bodylg);font-weight:700;color:var(--text-faint);transition:all .15s;touch-action:manipulation;min-height:48px}
+.yr-o.sel{background:rgba(209,172,0,.16);border-color:var(--sun);color:var(--sun-l)}
 .yr-o:active{transform:scale(.95)}
-.mclose{display:block;margin:12px auto 0;background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);padding:10px 22px;color:var(--txtm);font-size:12px;cursor:pointer;touch-action:manipulation;min-height:44px}
-.toast{position:fixed;bottom:calc(var(--tab-h)+10px);left:50%;transform:translateX(-50%) translateY(18px);
-  background:var(--green);color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;
-  padding:8px 16px;border-radius:8px;opacity:0;transition:all .3s;pointer-events:none;z-index:50;white-space:nowrap}
+.mclose{display:block;margin:14px auto 0;background:rgba(124,147,184,.1);border:1px solid var(--border);border-radius:var(--r);padding:12px 26px;color:var(--text-faint);font-size:var(--fs-body);cursor:pointer;touch-action:manipulation;min-height:48px}
+.toast{position:fixed;bottom:calc(var(--tab-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--green);color:#fff;font-family:var(--font-sans);font-size:var(--fs-body);font-weight:700;
+  padding:10px 18px;border-radius:10px;opacity:0;transition:all .3s;pointer-events:none;z-index:50;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── BREAKPOINTS ── */
-@media(min-width:400px){
-  body{font-size:11px}
-  .kpi-v{font-size:24px}.q-num{font-size:20px}
-}
 @media(min-width:600px){
-  body{font-size:13px}
-  #content{padding:14px 14px calc(var(--tab-h)+14px)}
+  #content{padding:18px 18px calc(var(--tab-h)+18px)}
   .kpi-grid{grid-template-columns:repeat(4,1fr)}.q-grid{grid-template-columns:repeat(4,1fr)}.month-grid{grid-template-columns:repeat(3,1fr)}
-  .kpi-v{font-size:26px}.q-num{font-size:22px}
 }
-@media(min-width:900px){.month-grid{grid-template-columns:repeat(4,1fr)};body{font-size:14px}}
+@media(min-width:900px){.month-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <div id="app">
 
 <!-- TOPBAR -->
-<div id="topbar">
+<div id="topbar" class="hero">
   <div class="top-logo">
     <svg class="logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <rect width="512" height="512" rx="110" fill="#001f30"/>
-      <rect x="30" y="30" width="452" height="452" rx="82" fill="#003049"/>
-      <path d="M118 175 L256 355 L394 175" stroke="#D1AC00" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <rect x="126" y="390" width="56" height="9" rx="4.5" fill="#BAD1CD" opacity="0.3"/>
-      <rect x="196" y="390" width="56" height="9" rx="4.5" fill="#D1AC00" opacity="0.55"/>
-      <rect x="266" y="390" width="56" height="9" rx="4.5" fill="#248232" opacity="0.5"/>
-      <rect x="336" y="390" width="56" height="9" rx="4.5" fill="#713E5A" opacity="0.45"/>
+      <defs>
+        <linearGradient id="irisMetalTop" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#6B4423"/><stop offset="16%" stop-color="#B87333"/>
+          <stop offset="34%" stop-color="#6B4423"/><stop offset="50%" stop-color="#E8C39E"/>
+          <stop offset="64%" stop-color="#B87333"/><stop offset="82%" stop-color="#6B4423"/>
+          <stop offset="100%" stop-color="#E8C39E"/>
+        </linearGradient>
+        <radialGradient id="sunGradTop" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#F5D687"/><stop offset="100%" stop-color="#D1AC00"/>
+        </radialGradient>
+      </defs>
+      <g fill="url(#irisMetalTop)">
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(0 256 256)"/>
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(60 256 256)"/>
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(120 256 256)"/>
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(180 256 256)"/>
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(240 256 256)"/>
+        <rect x="237.7" y="45.7" width="36.6" height="164.6" rx="18" transform="rotate(300 256 256)"/>
+      </g>
+      <g fill="url(#sunGradTop)">
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(30 256 256)"/>
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(90 256 256)"/>
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(150 256 256)"/>
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(210 256 256)"/>
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(270 256 256)"/>
+        <rect x="246" y="108" width="20" height="58" rx="10" transform="rotate(330 256 256)"/>
+      </g>
+      <circle cx="256" cy="256" r="58.5" fill="url(#sunGradTop)"/>
     </svg>
-    <div><div class="logo-name">VARIK</div><div class="logo-tag" id="top-tag">Hessen · 6-Tage</div></div>
+    <div><div class="logo-name brand-type">IRIS Holiday</div><div class="logo-tag" id="top-tag">Hessen · 6-Tage</div></div>
   </div>
   <div class="yr-ctrl">
     <button class="yr-btn" onclick="changeYear(-1)">&#8249;</button>
@@ -370,7 +395,6 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
   <div class="k-pill">
     <span class="k-lbl">Kont.</span>
     <span class="k-val" id="pill-val">0/36</span>
-    <div class="k-bw"><div class="k-bf" id="k-bar" style="width:0%"></div></div>
   </div>
 </div>
 
@@ -380,16 +404,16 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
 <!-- DASHBOARD -->
 <div id="view-dash" class="view active">
   <div class="kpi-grid">
-    <div class="kpi-card cg"><div class="kpi-lbl">Kontingent</div><div class="kpi-v" id="kpi-total">36</div><div class="kpi-s">Urlaubstage</div></div>
-    <div class="kpi-card cgr"><div class="kpi-lbl">Verplant</div><div class="kpi-v" id="kv">0</div><div class="kpi-s">Tage</div></div>
-    <div class="kpi-card cp"><div class="kpi-lbl">Rest</div><div class="kpi-v" id="kr">36</div><div class="kpi-s">Verfügbar</div></div>
-    <div class="kpi-card ca"><div class="kpi-lbl">Genehmigung</div><div class="kpi-v" id="ko" style="font-size:14px;margin-top:3px">—</div><div class="kpi-s" id="ko-sub">offen</div></div>
+    <div class="kpi-card card cg"><div class="kpi-lbl">Kontingent</div><div class="kpi-v" id="kpi-total">36</div><div class="kpi-s">Urlaubstage</div></div>
+    <div class="kpi-card card cgr"><div class="kpi-lbl">Verplant</div><div class="kpi-v" id="kv">0</div><div class="kpi-s">Tage</div></div>
+    <div class="kpi-card card cp"><div class="kpi-lbl">Rest</div><div class="kpi-v" id="kr">36</div><div class="kpi-s">Verfügbar</div></div>
+    <div class="kpi-card card ca"><div class="kpi-lbl">Genehmigung</div><div class="kpi-v" id="ko" style="font-size:var(--fs-h3);margin-top:4px">—</div><div class="kpi-s" id="ko-sub">offen</div></div>
   </div>
   <div class="q-grid">
-    <div class="q-card qc1"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q1</div><span class="badge bm" id="q1b">12 T</span></div><div class="q-num" id="q1n">12</div><div class="q-desc">Jan–Mär</div><div class="qbar"><div class="qbf" id="qb1" style="width:0%"></div></div></div>
-    <div class="q-card qc2"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q2</div><span class="badge bg" id="q2b">6 T</span></div><div class="q-num" id="q2n">6</div><div class="q-desc">Apr–Jun</div><div class="qbar"><div class="qbf" id="qb2" style="width:0%"></div></div></div>
-    <div class="q-card qc3"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q3</div><span class="badge bgg" id="q3b">12 T</span></div><div class="q-num" id="q3n">12</div><div class="q-desc">Jul–Sep</div><div class="qbar"><div class="qbf" id="qb3" style="width:0%"></div></div></div>
-    <div class="q-card qc4"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q4</div><span class="badge bp" id="q4b">6 T</span></div><div class="q-num" id="q4n">6</div><div class="q-desc">Okt–Dez</div><div class="qbar"><div class="qbf" id="qb4" style="width:0%"></div></div></div>
+    <div class="q-card card qc1"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q1</div><span class="badge bm" id="q1b">12 T</span></div><div class="q-num" id="q1n">12</div><div class="q-desc">Jan–Mär</div><div class="qbar"><div class="qbf" id="qb1" style="width:0%"></div></div></div>
+    <div class="q-card card qc2"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q2</div><span class="badge bg" id="q2b">6 T</span></div><div class="q-num" id="q2n">6</div><div class="q-desc">Apr–Jun</div><div class="qbar"><div class="qbf" id="qb2" style="width:0%"></div></div></div>
+    <div class="q-card card qc3"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q3</div><span class="badge bgg" id="q3b">12 T</span></div><div class="q-num" id="q3n">12</div><div class="q-desc">Jul–Sep</div><div class="qbar"><div class="qbf" id="qb3" style="width:0%"></div></div></div>
+    <div class="q-card card qc4"><div class="q-head"><div class="q-lbl"><div class="qdot"></div>Q4</div><span class="badge bp" id="q4b">6 T</span></div><div class="q-num" id="q4n">6</div><div class="q-desc">Okt–Dez</div><div class="qbar"><div class="qbf" id="qb4" style="width:0%"></div></div></div>
   </div>
   <button class="btn-gen" id="gen-btn" onclick="generateOptions()"><span id="gen-icon">&#9889;</span><span id="gen-txt">Optionen berechnen</span></button>
   <button class="btn-sec" onclick="resetAll()">&#8635; Reset</button>
@@ -399,8 +423,8 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
 <!-- MEIN PLAN -->
 <div id="view-plan" class="view">
   <div class="sh"><div class="sh-t">Mein Plan zusammenstellen</div><span class="badge bgg" id="plan-badge">0 AT</span></div>
-  <div class="plan-hdr">
-    <div class="plan-top"><div class="plan-title">Budget <span style="font-family:var(--mono);color:var(--gold)" id="plan-yr">2027</span></div><span class="badge bm" id="plan-status">ENTWURF</span></div>
+  <div class="plan-hdr card">
+    <div class="plan-top"><div class="plan-title">Budget <span style="font-family:var(--font-mono);color:var(--sun-l)" id="plan-yr">2027</span></div><span class="badge bm" id="plan-status">ENTWURF</span></div>
     <div class="pbudget-bar"><div class="pbudget-fill" id="p-bar" style="width:0%"></div></div>
     <div class="pbudget-nums">
       <span class="pbn">Verplant: <span id="pb-used">0</span> AT</span>
@@ -413,13 +437,13 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
   <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div id="saved-wrap" style="display:none">
     <div class="sh"><div class="sh-t">Gespeicherter Jahresplan</div><span class="badge bgg">AKTIV</span></div>
-    <div class="saved-plan" id="saved-card"></div>
+    <div class="saved-plan card" id="saved-card"></div>
   </div>
 </div>
 
 <!-- KALENDER -->
 <div id="view-kal" class="view">
-  <div class="sh"><div class="sh-t">Kalender <span id="kal-yr" style="color:var(--gold)">2027</span></div></div>
+  <div class="sh"><div class="sh-t">Kalender <span id="kal-yr" style="color:var(--sun-l)">2027</span></div></div>
   <div class="cal-legend">
     <div class="leg"><div class="ld lft"></div>Feiertag</div>
     <div class="leg"><div class="ld lfe"></div>Schulferien/Sperre</div>
@@ -434,56 +458,132 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
   <div id="appr-content"></div>
 </div>
 
-<!-- EINSTELLUNGEN -->
+<!-- EINSTELLUNGEN — vereinfachte Eingabelogik (native Felder, Label über Feld) -->
 <div id="view-set" class="view">
   <div class="info-box"><strong>Richtlinien-Engine</strong> — Änderungen wirken direkt auf die Berechnung.</div>
+
   <div class="sh"><div class="sh-t">Kontingent &amp; Arbeitszeit</div></div>
-  <div class="sg">
+  <div class="sg card">
     <div class="sg-title">Urlaubskontingent</div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Gesamturlaub (Tage)</div><div class="sr-desc">Gesetzl. 24 T (5-Tage). Tariflich höher möglich.</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('total',-1)">&#8722;</button><span class="num-val" id="st-total">36</span><button class="num-btn" onclick="adjN('total',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Arbeitszeitmodell</div><div class="sr-desc">Welche Wochentage zählen als Urlaubstage.</div></div><div class="sr-right"><div class="chip-group"><div class="chip sel" id="ch-6t" onclick="selModel('6t')">6-Tage</div><div class="chip" id="ch-5t" onclick="selModel('5t')">5-Tage</div></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Resturlaub Vorjahr</div><div class="sr-desc">Übertrag addiert (§ 7 BUrlG, max. bis 31.03.).</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('carry',-1)">&#8722;</button><span class="num-val" id="st-carry">0</span><button class="num-btn" onclick="adjN('carry',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Sonderurlaub (einmalig)</div><div class="sr-desc">Z.B. Hochzeit, Todesfall (§ 616 BGB / TV).</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('special',-1)">&#8722;</button><span class="num-val" id="st-special">0</span><button class="num-btn" onclick="adjN('special',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Bereits genommene Tage</div><div class="sr-desc">Verbrauchte Urlaubstage werden abgezogen.</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('taken',-1)">&#8722;</button><span class="num-val" id="st-taken">0</span><button class="num-btn" onclick="adjN('taken',1)">&#43;</button></div></div></div>
+    <div class="field-row">
+      <label class="field-label" for="in-total">Gesamturlaub (Tage)</label>
+      <div class="field-desc">Gesetzl. 24 T (5-Tage). Tariflich höher möglich.</div>
+      <input type="number" class="field" id="in-total" min="0" max="90" step="1" oninput="onNum('total',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-model">Arbeitszeitmodell</label>
+      <div class="field-desc">Welche Wochentage zählen als Urlaubstage.</div>
+      <select class="field" id="in-model" onchange="onModel(this.value)">
+        <option value="6t">6-Tage-Woche</option>
+        <option value="5t">5-Tage-Woche</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-carry">Resturlaub Vorjahr</label>
+      <div class="field-desc">Übertrag addiert (§ 7 BUrlG, max. bis 31.03.).</div>
+      <input type="number" class="field" id="in-carry" min="0" max="60" step="1" oninput="onNum('carry',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-special">Sonderurlaub (einmalig)</label>
+      <div class="field-desc">Z. B. Hochzeit, Todesfall (§ 616 BGB / TV).</div>
+      <input type="number" class="field" id="in-special" min="0" max="30" step="1" oninput="onNum('special',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-taken">Bereits genommene Tage</label>
+      <div class="field-desc">Verbrauchte Urlaubstage werden abgezogen.</div>
+      <input type="number" class="field" id="in-taken" min="0" max="90" step="1" oninput="onNum('taken',this.value)">
+    </div>
   </div>
+
   <div class="sh"><div class="sh-t">Quartalsverteilung</div></div>
-  <div class="sg">
+  <div class="sg card">
     <div class="sg-title">Urlaubstage je Quartal</div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Q1 · Jan – Mär</div><div class="sr-desc" id="q1-dset">12 AT</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjQ('Q1',-1)">&#8722;</button><span class="num-val" id="sq1">12</span><button class="num-btn" onclick="adjQ('Q1',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Q2 · Apr – Jun</div><div class="sr-desc" id="q2-dset">6 AT</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjQ('Q2',-1)">&#8722;</button><span class="num-val" id="sq2">6</span><button class="num-btn" onclick="adjQ('Q2',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Q3 · Jul – Sep</div><div class="sr-desc" id="q3-dset">12 AT</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjQ('Q3',-1)">&#8722;</button><span class="num-val" id="sq3">12</span><button class="num-btn" onclick="adjQ('Q3',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Q4 · Okt – Dez</div><div class="sr-desc" id="q4-dset">6 AT</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjQ('Q4',-1)">&#8722;</button><span class="num-val" id="sq4">6</span><button class="num-btn" onclick="adjQ('Q4',1)">&#43;</button></div></div></div>
-    <div class="q-sum-row"><span style="font-family:var(--mono);font-size:9px;color:var(--txtm)">Summe:</span><span id="q-sum" style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--gold)">36 / 36</span></div>
+    <div class="field-row">
+      <label class="field-label" for="in-q1">Q1 · Jan – Mär</label>
+      <input type="number" class="field" id="in-q1" min="0" max="60" step="1" oninput="onQ('Q1',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-q2">Q2 · Apr – Jun</label>
+      <input type="number" class="field" id="in-q2" min="0" max="60" step="1" oninput="onQ('Q2',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-q3">Q3 · Jul – Sep</label>
+      <input type="number" class="field" id="in-q3" min="0" max="60" step="1" oninput="onQ('Q3',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-q4">Q4 · Okt – Dez</label>
+      <input type="number" class="field" id="in-q4" min="0" max="60" step="1" oninput="onQ('Q4',this.value)">
+    </div>
+    <div class="q-sum-row"><span style="font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--text-faint)">Summe:</span><span id="q-sum" style="font-family:var(--font-mono);font-size:var(--fs-body);font-weight:700;color:var(--sun-l)">36 / 36</span></div>
   </div>
+
   <div class="sh"><div class="sh-t">Puffer &amp; Validierung</div></div>
-  <div class="sg">
+  <div class="sg card">
     <div class="sg-title">Sperrzonenabstand</div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Mindestpuffer (Arbeitstage)</div><div class="sr-desc">Abstand zu Feiertagen/Schulferien. Standard: 6 AT.</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('puffer',-1)">&#8722;</button><span class="num-val" id="st-puffer">6</span><button class="num-btn" onclick="adjN('puffer',1)">&#43;</button></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Schulferien-Ausschluss</div><div class="sr-desc">Kein Urlaub während Schulferien.</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" id="tog-ferien" checked onchange="onDirty()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Feiertags-Ausschluss</div><div class="sr-desc">Feiertage zählen nicht als Urlaubstage.</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" id="tog-ft" checked onchange="onDirty()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Samstag als Urlaubstag</div><div class="sr-desc">Nur im 6-Tage-Modell relevant.</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" id="tog-sa" checked onchange="onDirty()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+    <div class="field-row">
+      <label class="field-label" for="in-puffer">Mindestpuffer (Arbeitstage)</label>
+      <div class="field-desc">Abstand zu Feiertagen/Schulferien. Standard: 6 AT.</div>
+      <input type="number" class="field" id="in-puffer" min="1" max="20" step="1" oninput="onNum('puffer',this.value)">
+    </div>
+    <div class="field-row">
+      <label class="field-check-row"><input type="checkbox" id="tog-ferien" class="field-check" onchange="onDirty()"><span class="field-label" style="margin:0">Schulferien-Ausschluss</span></label>
+      <div class="field-desc" style="margin-top:6px">Kein Urlaub während Schulferien.</div>
+    </div>
+    <div class="field-row">
+      <label class="field-check-row"><input type="checkbox" id="tog-ft" class="field-check" onchange="onDirty()"><span class="field-label" style="margin:0">Feiertags-Ausschluss</span></label>
+      <div class="field-desc" style="margin-top:6px">Feiertage zählen nicht als Urlaubstage.</div>
+    </div>
+    <div class="field-row">
+      <label class="field-check-row"><input type="checkbox" id="tog-sa" class="field-check" onchange="onDirty()"><span class="field-label" style="margin:0">Samstag als Urlaubstag</span></label>
+      <div class="field-desc" style="margin-top:6px">Nur im 6-Tage-Modell relevant.</div>
+    </div>
   </div>
+
   <div class="sh"><div class="sh-t">Betriebliche Sperrzeiten</div></div>
-  <div class="sg">
+  <div class="sg card">
     <div class="sg-title">Individuelle Sperren</div>
     <div id="sperr-list" class="sperr-list"></div>
     <div class="sperr-add">
-      <div style="font-family:var(--mono);font-size:8px;color:var(--txtm);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Sperrzeit hinzufügen</div>
-      <div style="margin-bottom:5px"><input type="text" class="txt-input" id="sz-name" placeholder="Bezeichnung" maxlength="40"></div>
+      <label class="field-label" for="sz-name">Sperrzeit hinzufügen</label>
+      <input type="text" class="field" id="sz-name" placeholder="Bezeichnung" maxlength="40">
       <div class="sperr-add-row">
-        <div class="date-field"><div class="date-label-sm">Von</div><input type="date" class="date-in" id="sz-from"></div>
-        <div class="date-field"><div class="date-label-sm">Bis</div><input type="date" class="date-in" id="sz-to"></div>
-        <button class="btn-add-sz" onclick="addSZ()">+ Hinzu</button>
+        <div style="flex:1"><label class="field-label" for="sz-from" style="font-size:var(--fs-sm)">Von</label><input type="date" class="field" id="sz-from"></div>
+        <div style="flex:1"><label class="field-label" for="sz-to" style="font-size:var(--fs-sm)">Bis</label><input type="date" class="field" id="sz-to"></div>
       </div>
+      <button class="btn-add-sz" onclick="addSZ()">+ Sperrzeit hinzufügen</button>
     </div>
   </div>
+
   <div class="sh"><div class="sh-t">Profil &amp; Bundesland</div></div>
-  <div class="sg">
+  <div class="sg card">
     <div class="sg-title">Konfiguration</div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Name / Kürzel</div><div class="sr-desc">Erscheint im Genehmigungsprotokoll.</div></div><div class="sr-right" style="min-width:120px"><input type="text" class="txt-input" id="st-name" placeholder="z.B. M. Muster" maxlength="20" style="width:120px" oninput="onDirty()"></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Vorgesetzter</div><div class="sr-desc">Erscheint im Genehmigungsprotokoll.</div></div><div class="sr-right" style="min-width:120px"><input type="text" class="txt-input" id="st-supervisor" placeholder="z.B. F. Manager" maxlength="30" style="width:120px" oninput="onDirty()"></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Bundesland</div><div class="sr-desc">Bestimmt Feiertage und Schulferien.</div></div><div class="sr-right"><div class="chip-group"><div class="chip sel" id="ch-HE" onclick="selBL('HE')">HE</div><div class="chip" id="ch-BY" onclick="selBL('BY')">BY</div><div class="chip" id="ch-NW" onclick="selBL('NW')">NW</div><div class="chip" id="ch-BW" onclick="selBL('BW')">BW</div><div class="chip" id="ch-NI" onclick="selBL('NI')">NI</div><div class="chip" id="ch-BE" onclick="selBL('BE')">BE</div></div></div></div>
-    <div class="sr"><div class="sr-left"><div class="sr-label">Optionen je Quartal</div><div class="sr-desc">Anzahl berechneter Alternativen (1–5).</div></div><div class="sr-right"><div class="num-input"><button class="num-btn" onclick="adjN('alts',-1)">&#8722;</button><span class="num-val" id="st-alts">3</span><button class="num-btn" onclick="adjN('alts',1)">&#43;</button></div></div></div>
+    <div class="field-row">
+      <label class="field-label" for="st-name">Name / Kürzel</label>
+      <div class="field-desc">Erscheint im Genehmigungsprotokoll.</div>
+      <input type="text" class="field" id="st-name" placeholder="z. B. M. Muster" maxlength="20" oninput="onDirty()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="st-supervisor">Vorgesetzter</label>
+      <div class="field-desc">Erscheint im Genehmigungsprotokoll.</div>
+      <input type="text" class="field" id="st-supervisor" placeholder="z. B. F. Manager" maxlength="30" oninput="onDirty()">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-bl">Bundesland</label>
+      <div class="field-desc">Bestimmt Feiertage und Schulferien.</div>
+      <select class="field" id="in-bl" onchange="onBL(this.value)">
+        <option value="HE">Hessen</option>
+        <option value="BY">Bayern</option>
+        <option value="NW">Nordrhein-Westfalen</option>
+        <option value="BW">Baden-Württemberg</option>
+        <option value="NI">Niedersachsen</option>
+        <option value="BE">Berlin</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="in-alts">Optionen je Quartal</label>
+      <div class="field-desc">Anzahl berechneter Alternativen (1–5).</div>
+      <input type="number" class="field" id="in-alts" min="1" max="5" step="1" oninput="onNum('alts',this.value)">
+    </div>
   </div>
   <button class="btn-cfg-save" onclick="saveSettings()">&#9881; Einstellungen speichern</button>
   <div style="height:8px"></div>
@@ -492,8 +592,8 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
 <!-- LOG -->
 <div id="view-log" class="view">
   <div class="sh"><div class="sh-t">Validierungs-Log</div><span class="badge bgg" id="log-badge">INAKTIV</span></div>
-  <div class="log-wrap">
-    <div class="log-top"><div class="ldot"></div>VARIK ENGINE</div>
+  <div class="log-wrap card">
+    <div class="log-top"><div class="ldot"></div>IRIS HOLIDAY ENGINE</div>
     <div class="log-body" id="log-body"><div class="ll"><span class="lts">00:00:00</span><span class="ltype info">INFO</span><span class="lmsg">System bereit.</span></div></div>
   </div>
 </div>
@@ -543,7 +643,7 @@ body{height:100%;overflow:hidden;font-family:var(--sans);
 
 <script>
 /* ══ SETTINGS ══ */
-const SK='varik_settings';
+const SK='irisholiday_settings';
 const DEF={totalDays:36,carryOver:0,specialDays:0,takenDays:0,workModel:'6t',puffer:6,ferienExcl:true,ftExcl:true,samstag:true,bundesland:'HE',name:'',supervisor:'',alts:3,sperrzeiten:[],qTargets:{Q1:12,Q2:6,Q3:12,Q4:6}};
 let CFG={...DEF,qTargets:{...DEF.qTargets},sperrzeiten:[]};
 let DIRTY=false;
@@ -554,7 +654,7 @@ let DIRTY=false;
    Einzige manuelle Aktion: Genehmigen (1 Tap) → Status 'approved'.
    Zurücksetzen → Status zurück auf 'pending'.
 ══ */
-const AK=y=>'varik_appr_'+y;
+const AK=y=>'irisholiday_appr_'+y;
 let APPR={status:null,approvedAt:null,approver:'',history:[]};
 // status: null (kein Plan) | 'pending' (Plan da, noch nicht genehmigt) | 'approved'
 
@@ -593,35 +693,34 @@ function refreshData(y){FEIERTAGE=getFT(y,CFG.bundesland);SCHULFERIEN=getSF(y);F
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
 function genC(qS,qE,tgt,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);while(cur.getDay()!==1)cur=addD(cur,1);let att=0;while(cur<=qEd&&res.length<max){if(++att>400)break;if(!isWork(cur)){cur=addD(cur,7);continue;}let p=new Date(cur),col=0;while(col<tgt&&p<=qEd){if(isWork(p))col++;if(col<tgt)p=addD(p,1);}if(p>qEd){cur=addD(cur,7);continue;}const ok=hasBuf(cur,p);let blk=false;let x=new Date(cur);while(x<=p){if(isBlocked(x)){blk=true;break;}x=addD(x,1);}if(ok&&!blk)res.push({start:new Date(cur),end:new Date(p),workdays:cntWork(cur,p)});cur=addD(cur,7);}return res;}
 
-/* ── settings ── */
+/* ── settings — vereinfachte Eingabelogik (native input/select statt Custom-Stepper/Chips) ── */
 function loadSettings(){try{const r=localStorage.getItem(SK);if(!r)return;const s=JSON.parse(r);Object.assign(CFG,s);if(s.qTargets)CFG.qTargets={...DEF.qTargets,...s.qTargets};if(s.sperrzeiten)CFG.sperrzeiten=[...s.sperrzeiten];}catch{}}
 function saveSettingsStorage(){localStorage.setItem(SK,JSON.stringify(CFG));}
 function syncUI(){
-  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  sv('st-total',CFG.totalDays);sv('st-carry',CFG.carryOver);sv('st-special',CFG.specialDays);sv('st-taken',CFG.takenDays);sv('st-puffer',CFG.puffer);sv('st-alts',CFG.alts);
-  sv('sq1',CFG.qTargets.Q1);sv('sq2',CFG.qTargets.Q2);sv('sq3',CFG.qTargets.Q3);sv('sq4',CFG.qTargets.Q4);
+  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  sv('in-total',CFG.totalDays);sv('in-carry',CFG.carryOver);sv('in-special',CFG.specialDays);sv('in-taken',CFG.takenDays);sv('in-puffer',CFG.puffer);sv('in-alts',CFG.alts);
+  sv('in-q1',CFG.qTargets.Q1);sv('in-q2',CFG.qTargets.Q2);sv('in-q3',CFG.qTargets.Q3);sv('in-q4',CFG.qTargets.Q4);
   document.getElementById('tog-ferien').checked=CFG.ferienExcl;document.getElementById('tog-ft').checked=CFG.ftExcl;document.getElementById('tog-sa').checked=CFG.samstag;
   document.getElementById('st-name').value=CFG.name;document.getElementById('st-supervisor').value=CFG.supervisor||'';
-  ['6t','5t'].forEach(m=>document.getElementById('ch-'+m).classList.toggle('sel',CFG.workModel===m));
-  ['HE','BY','NW','BW','NI','BE'].forEach(bl=>document.getElementById('ch-'+bl).classList.toggle('sel',CFG.bundesland===bl));
+  sv('in-model',CFG.workModel);sv('in-bl',CFG.bundesland);
   updQSum();renderSZList();updQCards();
 }
-function updQSum(){const s=CFG.qTargets.Q1+CFG.qTargets.Q2+CFG.qTargets.Q3+CFG.qTargets.Q4,t=CFG.totalDays;const el=document.getElementById('q-sum');el.textContent=s+' / '+t;el.style.color=s===t?'var(--green-l)':s>t?'var(--red-l)':'var(--gold)';['Q1','Q2','Q3','Q4'].forEach(q=>{const e=document.getElementById(q.toLowerCase()+'-dset');if(e)e.textContent=CFG.qTargets[q]+' AT';});}
+function updQSum(){const s=CFG.qTargets.Q1+CFG.qTargets.Q2+CFG.qTargets.Q3+CFG.qTargets.Q4,t=CFG.totalDays;const el=document.getElementById('q-sum');el.textContent=s+' / '+t;el.style.color=s===t?'var(--green-l)':s>t?'#e88':'var(--sun-l)';}
 function updQCards(){['Q1','Q2','Q3','Q4'].forEach((q,i)=>{const n=document.getElementById('q'+(i+1)+'n'),b=document.getElementById('q'+(i+1)+'b');if(n)n.textContent=CFG.qTargets[q];if(b)b.textContent=CFG.qTargets[q]+' T';});}
-function adjN(k,delta){const map={total:'totalDays',carry:'carryOver',special:'specialDays',taken:'takenDays',puffer:'puffer',alts:'alts'};const lim={total:[0,90],carry:[0,60],special:[0,30],taken:[0,90],puffer:[1,20],alts:[1,5]};const prop=map[k],[mn,mx]=lim[k];CFG[prop]=Math.max(mn,Math.min(mx,CFG[prop]+delta));document.getElementById('st-'+k).textContent=CFG[prop];if(k==='total')updQSum();onDirty();}
-function adjQ(q,delta){CFG.qTargets[q]=Math.max(0,Math.min(60,CFG.qTargets[q]+delta));document.getElementById('s'+q.toLowerCase()).textContent=CFG.qTargets[q];updQSum();onDirty();}
-function selModel(m){CFG.workModel=m;CFG.samstag=(m==='6t');document.getElementById('tog-sa').checked=CFG.samstag;['6t','5t'].forEach(x=>document.getElementById('ch-'+x).classList.toggle('sel',x===m));onDirty();}
-function selBL(bl){CFG.bundesland=bl;['HE','BY','NW','BW','NI','BE'].forEach(x=>document.getElementById('ch-'+x).classList.toggle('sel',x===bl));onDirty();}
+function onNum(k,val){const map={total:'totalDays',carry:'carryOver',special:'specialDays',taken:'takenDays',puffer:'puffer',alts:'alts'};const lim={total:[0,90],carry:[0,60],special:[0,30],taken:[0,90],puffer:[1,20],alts:[1,5]};const prop=map[k],[mn,mx]=lim[k];CFG[prop]=Math.max(mn,Math.min(mx,Math.round(Number(val)||0)));if(k==='total')updQSum();onDirty();}
+function onQ(q,val){CFG.qTargets[q]=Math.max(0,Math.min(60,Math.round(Number(val)||0)));updQSum();onDirty();}
+function onModel(v){CFG.workModel=v;CFG.samstag=(v==='6t');document.getElementById('tog-sa').checked=CFG.samstag;onDirty();}
+function onBL(v){CFG.bundesland=v;onDirty();}
 function onDirty(){DIRTY=true;document.getElementById('set-dot').style.display='block';}
-function renderSZList(){const c=document.getElementById('sperr-list');if(!CFG.sperrzeiten.length){c.innerHTML='<div style="font-size:10px;color:var(--txtm);padding:3px 0">Keine Sperrzeiten hinterlegt.</div>';return;}c.innerHTML=CFG.sperrzeiten.map((z,i)=>'<div class="sperr-item"><div class="sperr-dot"></div><div class="sperr-text"><strong style="font-size:10px">'+z.name+'</strong><br><span style="font-family:var(--mono);font-size:8px;color:var(--txtm)">'+fmt(d(z.start))+' \u2013 '+fmt(d(z.end))+'</span></div><button class="sperr-del" onclick="delSZ('+i+')">&#10005;</button></div>').join('');}
+function renderSZList(){const c=document.getElementById('sperr-list');if(!CFG.sperrzeiten.length){c.innerHTML='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:3px 0">Keine Sperrzeiten hinterlegt.</div>';return;}c.innerHTML=CFG.sperrzeiten.map((z,i)=>'<div class="sperr-item"><div class="sperr-dot"></div><div class="sperr-text"><strong style="font-size:var(--fs-sm)">'+z.name+'</strong><br><span style="font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)">'+fmt(d(z.start))+' – '+fmt(d(z.end))+'</span></div><button class="sperr-del" onclick="delSZ('+i+')">&#10005;</button></div>').join('');}
 function addSZ(){const nm=document.getElementById('sz-name').value.trim(),fr=document.getElementById('sz-from').value,to=document.getElementById('sz-to').value;if(!nm){showToast('Bezeichnung eingeben');return;}if(!fr||!to){showToast('Datum eingeben');return;}if(fr>to){showToast('Von muss vor Bis liegen');return;}CFG.sperrzeiten.push({name:nm,start:fr,end:to});document.getElementById('sz-name').value='';document.getElementById('sz-from').value='';document.getElementById('sz-to').value='';renderSZList();onDirty();showToast('Sperrzeit hinzugef\xFCgt');}
 function delSZ(i){CFG.sperrzeiten.splice(i,1);renderSZList();onDirty();}
-function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland);showToast('Einstellungen gespeichert \u2713');}
+function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland);showToast('Einstellungen gespeichert ✓');}
 
 /* ── main storage ── */
-const sKey=y=>'varik_'+y;
-function getMeta(){try{return JSON.parse(localStorage.getItem('varik_meta'))||{};}catch{return{};}}
-function saveMeta(o){localStorage.setItem('varik_meta',JSON.stringify(o));}
+const sKey=y=>'irisholiday_'+y;
+function getMeta(){try{return JSON.parse(localStorage.getItem('irisholiday_meta'))||{};}catch{return{};}}
+function saveMeta(o){localStorage.setItem('irisholiday_meta',JSON.stringify(o));}
 function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){localStorage.removeItem(sKey(t.getFullYear()-1));localStorage.removeItem(AK(t.getFullYear()-1));m[k]=true;saveMeta(m);}}
 function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>({...x,start:iso(x.start),end:iso(x.end)}));return o;}
 function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>({...x,start:d(x.start),end:d(x.end)}));return o;}
@@ -631,13 +730,13 @@ function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return f
 /* ── generate ── */
 function generateOptions(){
   if(DIRTY){showToast('Einstellungen zuerst speichern');return;}
-  const btn=document.getElementById('gen-btn');btn.classList.add('loading');document.getElementById('gen-icon').innerHTML='<span class="spin"></span>';document.getElementById('gen-txt').textContent='Berechne\u2026';
+  const btn=document.getElementById('gen-btn');btn.classList.add('loading');document.getElementById('gen-icon').innerHTML='<span class="spin"></span>';document.getElementById('gen-txt').textContent='Berechne…';
   setTimeout(()=>{
-    logClear();logAdd('info','Engine \u2014 '+CFG.bundesland+' '+YEAR+' \u2014 '+CFG.workModel+' \u2014 Puffer: '+CFG.puffer+' AT');logAdd('info','Kontingent: '+effTotal()+' AT');
-    FEIERTAGE.forEach(f=>logAdd('feiertag',fmt(d(f.date))+' \u2014 '+f.name));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>logAdd('ferien',fmt(d(f.start))+' \u2013 '+fmt(d(f.end))+' \u2014 '+f.name));CFG.sperrzeiten.forEach(z=>logAdd('ferien','Sperre: '+z.name));
-    RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  \u2192 '+fmt(x.start)+' \u2013 '+fmt(x.end)+' ('+x.workdays+' AT)'));}
-    CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK \u2713');
-    saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='\u2713';document.getElementById('gen-txt').textContent='Neu berechnen';
+    logClear();logAdd('info','Engine — '+CFG.bundesland+' '+YEAR+' — '+CFG.workModel+' — Puffer: '+CFG.puffer+' AT');logAdd('info','Kontingent: '+effTotal()+' AT');
+    FEIERTAGE.forEach(f=>logAdd('feiertag',fmt(d(f.date))+' — '+f.name));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>logAdd('ferien',fmt(d(f.start))+' – '+fmt(d(f.end))+' — '+f.name));CFG.sperrzeiten.forEach(z=>logAdd('ferien','Sperre: '+z.name));
+    RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
+    CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK ✓');
+    saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';
   },480);
 }
 
@@ -647,17 +746,17 @@ function selectOpt(qid,idx){MY_PLAN[qid]=(MY_PLAN[qid]===idx)?null:idx;renderPla
 function renderPlanSels(){
   if(!CALC_DONE){document.getElementById('plan-no-calc').style.display='block';document.getElementById('plan-sels').innerHTML='';return;}
   document.getElementById('plan-no-calc').style.display='none';
-  const QC={Q1:'var(--mist)',Q2:'var(--gold)',Q3:'var(--green-l)',Q4:'var(--plum-l)'};
-  const QL={Q1:'Q1 \xB7 Jan\u2013M\xE4r',Q2:'Q2 \xB7 Apr\u2013Jun',Q3:'Q3 \xB7 Jul\u2013Sep',Q4:'Q4 \xB7 Okt\u2013Dez'};
+  const QC={Q1:'var(--slate)',Q2:'var(--sun-l)',Q3:'var(--mint)',Q4:'var(--lime)'};
+  const QL={Q1:'Q1 \xB7 Jan–M\xE4r',Q2:'Q2 \xB7 Apr–Jun',Q3:'Q3 \xB7 Jul–Sep',Q4:'Q4 \xB7 Okt–Dez'};
   let html='';
   for(const q of QUARTALS){
     const opts=RESULTS[q.id]||[],sel=MY_PLAN[q.id];
     const stxt=sel!==null&&opts[sel]?'Opt.'+'ABC'[sel]+' \xB7 '+opts[sel].workdays+' AT':'Keine Auswahl';
-    html+='<div class="q-sel"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:6px;height:6px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+QL[q.id]+' (Ziel: '+q.target+' AT)</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--txtm)')+'">'+stxt+'</span></div><div class="qs-body">';
-    if(!opts.length){html+='<div style="font-size:10px;color:var(--txtm);padding:5px 0">Keine Option berechnet</div>';}
+    html+='<div class="q-sel card"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+QL[q.id]+' (Ziel: '+q.target+' AT)</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
+    if(!opts.length){html+='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';}
     else{
-      opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' \u2013 '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:9px;color:var(--txtm);margin-left:2px">AT</span></div></div>';});
-      html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--txtm)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--txtm)">0<span style="font-size:9px;margin-left:2px">AT</span></div></div>';
+      opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});
+      html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
     }
     html+='</div></div>';
   }
@@ -667,7 +766,7 @@ function updPlanBudget(){
   const tot=effTotal(),used=planBudget(),pct=Math.min(Math.round(used/tot*100),100);
   document.getElementById('pb-used').textContent=used;document.getElementById('pb-rest').textContent=Math.max(tot-used,0);document.getElementById('pb-target').textContent=tot;document.getElementById('p-bar').style.width=pct+'%';document.getElementById('plan-badge').textContent=used+' AT';document.getElementById('plan-yr').textContent=YEAR;
   document.getElementById('save-btn').disabled=!Object.values(MY_PLAN).some(v=>v!==null);
-  document.getElementById('p-bar').style.background=used>tot?'var(--red-l)':used===tot?'var(--green-l)':'linear-gradient(90deg,var(--green),var(--gold))';
+  document.getElementById('p-bar').style.background=used>tot?'#e88':used===tot?'var(--green-l)':'linear-gradient(90deg,var(--mint),var(--sun))';
 }
 function saveMyPlan(){
   MY_PLAN_SAVED=JSON.parse(JSON.stringify(MY_PLAN));
@@ -678,15 +777,15 @@ function saveMyPlan(){
   }
   saveState();renderSavedPlan();updateKPIs();renderCalendar();renderApprView();updateKPIsAppr();
   document.getElementById('plan-status').textContent='GESPEICHERT';document.getElementById('plan-status').className='badge bgg';
-  showToast('Plan gespeichert \u2013 Genehmigung ausstehend');
+  showToast('Plan gespeichert – Genehmigung ausstehend');
 }
 function renderSavedPlan(){
   const wrap=document.getElementById('saved-wrap'),card=document.getElementById('saved-card');
   if(!MY_PLAN_SAVED){wrap.style.display='none';return;}
   wrap.style.display='block';let total=0,html='';
-  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];total+=o.workdays;html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-date">'+fmt(o.start)+' \u2013 '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}else html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--txtm)">0 AT</span></div>';}
+  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];total+=o.workdays;html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}else html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';}
   const nm=CFG.name?' \xB7 '+CFG.name:'';
-  card.innerHTML='<div class="sp-title">\u2713 Jahresplan '+YEAR+nm+' \u2014 '+total+' Urlaubstage</div>'+html;
+  card.innerHTML='<div class="sp-title">✓ Jahresplan '+YEAR+nm+' — '+total+' Urlaubstage</div>'+html;
 }
 
 /* ══════════════════════════════════════════
@@ -702,8 +801,8 @@ function approveNow(){
   APPR={status:'approved',approvedAt:ts,approver:appr,history:[...(APPR.history||[]),{action:'approved',ts,by:appr}]};
   saveAppr();renderApprView();updateKPIsAppr();
   document.getElementById('appr-dot').style.display='none';
-  showToast('Urlaub genehmigt \u2713');
-  logAdd('approved','Genehmigt \u2014 '+YEAR);
+  showToast('Urlaub genehmigt ✓');
+  logAdd('approved','Genehmigt — '+YEAR);
 }
 function resetApproval(){
   APPR={status:'pending',approvedAt:null,approver:'',history:[...(APPR.history||[]),{action:'reset',ts:new Date().toISOString(),by:''}]};
@@ -714,9 +813,9 @@ function resetApproval(){
 
 function updateKPIsAppr(){
   const el=document.getElementById('ko'),sub=document.getElementById('ko-sub');
-  if(!MY_PLAN_SAVED){el.textContent='\u2014';sub.textContent='kein Plan';el.style.color='var(--mist)';}
-  else if(APPR.status==='approved'){el.textContent='\u2713';sub.textContent='Genehmigt';el.style.color='var(--green-l)';}
-  else{el.textContent='Offen';sub.textContent='nicht genehmigt';el.style.color='var(--gold)';}
+  if(!MY_PLAN_SAVED){el.textContent='—';sub.textContent='kein Plan';el.style.color='var(--slate)';}
+  else if(APPR.status==='approved'){el.textContent='✓';sub.textContent='Genehmigt';el.style.color='var(--green-l)';}
+  else{el.textContent='Offen';sub.textContent='nicht genehmigt';el.style.color='var(--sun-l)';}
 }
 
 function renderApprView(){
@@ -730,13 +829,13 @@ function renderApprView(){
 
   /* Plan-Zeilen */
   let planRows='',totalDays=0;
-  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];totalDays+=o.workdays;planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-date">'+fmt(o.start)+' \u2013 '+fmt(o.end)+'</span><span class="ap-days">'+o.workdays+' AT</span></div>';}else{planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-none">Kein Urlaub</span><span class="ap-days" style="color:var(--txtm)">0</span></div>';}}
+  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];totalDays+=o.workdays;planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="ap-days">'+o.workdays+' AT</span></div>';}else{planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-none">Kein Urlaub</span><span class="ap-days" style="color:var(--text-faint)">0</span></div>';}}
 
   /* Banner */
   const bannerCls=isApproved?'approved':'pending';
   const bannerIcon=isApproved?'&#10004;':'&#9203;';
-  const bannerTitle=isApproved?'Urlaub genehmigt':'Ausstehend \u2014 noch nicht genehmigt';
-  const bannerSub=isApproved?('von '+(APPR.approver||CFG.supervisor||'')+(APPR.approvedAt?' \u2014 '+fmtDT(APPR.approvedAt):'')):'Kein Genehmigen = gilt als abgelehnt';
+  const bannerTitle=isApproved?'Urlaub genehmigt':'Ausstehend — noch nicht genehmigt';
+  const bannerSub=isApproved?('von '+(APPR.approver||CFG.supervisor||'')+(APPR.approvedAt?' — '+fmtDT(APPR.approvedAt):'')):'Kein Genehmigen = gilt als abgelehnt';
 
   /* Stempel */
   const stamp=isApproved?'<div class="stamp approved">GENEHMIGT</div>':'';
@@ -747,6 +846,7 @@ function renderApprView(){
   [...(APPR.history||[])].reverse().slice(0,5).forEach(h=>{const hm=hmap[h.action]||{cls:'rst',icon:'&#9679;',label:h.action};histHtml+='<div class="hist-item"><div class="h-icon '+hm.cls+'">'+hm.icon+'</div><div class="h-text"><div class="h-main">'+hm.label+'</div>'+(h.by?'<div class="h-sub">von '+h.by+'</div>':'')+'<div class="h-ts">'+fmtDT(h.ts)+'</div></div></div>';});
 
   const nm=CFG.name?' \xB7 '+CFG.name:'';
+  const abadge=isApproved?'badge bgg badge-shimmer':'badge bg';
 
   c.innerHTML=
     '<div class="appr-banner '+bannerCls+'">'
@@ -754,9 +854,9 @@ function renderApprView(){
     +'<div><div class="ab-title">'+bannerTitle+'</div><div class="ab-sub">'+bannerSub+'</div></div>'
     +'</div>'
 
-    +'<div class="sh"><div class="sh-t">Jahresplan '+YEAR+nm+'</div><span class="badge '+(isApproved?'bgg':'bg')+'">'+(isApproved?'GENEHMIGT':'AUSSTEHEND')+'</span></div>'
-    +'<div class="appr-plan-card">'+stamp
-    +'<div class="appr-plan-head"><div class="appr-plan-title">Urlaubsplan '+YEAR+'</div><span style="font-family:var(--mono);font-size:8px;color:var(--txtm)">'+totalDays+' AT gesamt</span></div>'
+    +'<div class="sh"><div class="sh-t">Jahresplan '+YEAR+nm+'</div><span class="'+abadge+'">'+(isApproved?'GENEHMIGT':'AUSSTEHEND')+'</span></div>'
+    +'<div class="appr-plan-card card">'+stamp
+    +'<div class="appr-plan-head"><div class="appr-plan-title">Urlaubsplan '+YEAR+'</div><span style="font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)">'+totalDays+' AT gesamt</span></div>'
     +'<div class="appr-plan-body">'+planRows+'</div>'
     +'</div>'
 
@@ -768,7 +868,7 @@ function renderApprView(){
 
     +(histHtml
       ? '<div class="sh"><div class="sh-t">Protokoll</div></div>'
-        +'<div class="hist-wrap"><div class="hist-head">Verlauf</div><div class="hist-body">'+histHtml+'</div></div>'
+        +'<div class="hist-wrap card"><div class="hist-head">Verlauf</div><div class="hist-body">'+histHtml+'</div></div>'
       : ''
     )
     +'<div style="height:8px"></div>';
@@ -778,12 +878,12 @@ function renderApprView(){
 function renderAll(){updateKPIs();renderDash();renderPlanSels();updPlanBudget();renderSavedPlan();renderCalendar();renderApprView();document.getElementById('yr-disp').textContent=YEAR;document.getElementById('kal-yr').textContent=YEAR;const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;updateKPIsAppr();}
 function updateKPIs(){
   const plan=MY_PLAN_SAVED||MY_PLAN;let total=0;for(const q of QUARTALS){const i=plan[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])total+=RESULTS[q.id][i].workdays;}
-  const tot=effTotal();document.getElementById('kv').textContent=total;document.getElementById('kr').textContent=Math.max(tot-total,0);document.getElementById('pill-val').textContent=total+'/'+tot;document.getElementById('k-bar').style.width=Math.min(Math.round(total/Math.max(tot,1)*100),100)+'%';
+  const tot=effTotal();document.getElementById('kv').textContent=total;document.getElementById('kr').textContent=Math.max(tot-total,0);document.getElementById('pill-val').textContent=total+'/'+tot;
   [['Q1','qb1'],['Q2','qb2'],['Q3','qb3'],['Q4','qb4']].forEach(([qid,bid],qi)=>{const i=plan[qid],o=RESULTS[qid]||[];document.getElementById(bid).style.width=(i!==null&&o[i])?Math.min(Math.round(o[i].workdays/QUARTALS[qi].target*100),100)+'%':'0%';});
 }
 function renderDash(){
   const c=document.getElementById('dash-res');if(!CALC_DONE)return;let html='';
-  for(const q of QUARTALS){const opts=RESULTS[q.id]||[];html+='<div style="margin-bottom:12px"><div class="sh" style="margin-top:'+(q.id==='Q1'?'3px':'0')+'"><div class="sh-t">'+q.id+' \u2014 Ziel: '+q.target+' AT</div>'+(opts.length?'<span class="badge bgg">'+opts.length+' Opt.</span>':'<span class="badge br">Keine</span>')+'</div><div class="res-cards">';if(!opts.length)html+='<div class="empty" style="padding:12px"><div class="ei" style="font-size:14px">\u26a0</div>Keine valide Option</div>';else opts.forEach((o,i)=>{const cls=['ta','tb2','tc'][i];html+='<div class="res-card"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="rc-dates">'+fmt(o.start)+' \u2013 '+fmt(o.end)+'</div><div class="rc-ok">\u2713 Puffer ('+CFG.puffer+' AT) ok</div></div><div class="rc-days">'+o.workdays+'<span style="font-size:9px;color:var(--txtm);margin-left:2px">AT</span></div></div>';});html+='</div></div>';}
+  for(const q of QUARTALS){const opts=RESULTS[q.id]||[];html+='<div style="margin-bottom:16px"><div class="sh" style="margin-top:'+(q.id==='Q1'?'3px':'0')+'"><div class="sh-t">'+q.id+' — Ziel: '+q.target+' AT</div>'+(opts.length?'<span class="badge bgg">'+opts.length+' Opt.</span>':'<span class="badge br">Keine</span>')+'</div><div class="res-cards">';if(!opts.length)html+='<div class="empty" style="padding:16px"><div class="ei" style="font-size:16px">⚠</div>Keine valide Option</div>';else opts.forEach((o,i)=>{const cls=['ta','tb2','tc'][i];html+='<div class="res-card card"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="rc-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div><div class="rc-ok">✓ Puffer ('+CFG.puffer+' AT) ok</div></div><div class="rc-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});html+='</div></div>';}
   c.innerHTML=html;
 }
 function renderCalendar(){
@@ -791,7 +891,7 @@ function renderCalendar(){
   const ap=MY_PLAN_SAVED||(CALC_DONE?MY_PLAN:null);
   if(ap)for(const q of QUARTALS){const i=ap[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const pt=RESULTS[q.id][i];let p=new Date(pt.start);while(p<=pt.end){if(isWork(p))urlSet.add(iso(p));p=addD(p,1);}for(let k=1;k<=12;k++){const b=addD(pt.start,-k),a=addD(pt.end,k);if(isWork(b))puSet.add(iso(b));if(isWork(a))puSet.add(iso(a));}}}
   const MN=['Jan','Feb','M\xE4r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],DN=['Mo','Di','Mi','Do','Fr','Sa','So'];let html='';
-  for(let m=0;m<12;m++){const first=new Date(YEAR,m,1),last=new Date(YEAR,m+1,0);let sdow=first.getDay();sdow=sdow===0?6:sdow-1;html+='<div class="mc"><div class="mn">'+MN[m]+' '+YEAR+'</div><div class="cg7">';for(const dn of DN)html+='<div class="cdh">'+dn+'</div>';for(let i=0;i<sdow;i++)html+='<div class="cd e"></div>';for(let day=1;day<=last.getDate();day++){const dt=new Date(YEAR,m,day),key=iso(dt);let cls='cd';if(dt.getDay()===0)cls+=' su';else if(CFG.ftExcl&&FT_SET.has(key))cls+=' ft';else if((CFG.ferienExcl&&SCHULFERIEN.some(f=>dt>=d(f.start)&&dt<=d(f.end)))||CFG.sperrzeiten.some(z=>dt>=d(z.start)&&dt<=d(z.end)))cls+=' fe';else if(urlSet.has(key))cls+=' ur';else if(puSet.has(key))cls+=' pu';html+='<div class="'+cls+'">'+day+'</div>';}html+='</div></div>';}
+  for(let m=0;m<12;m++){const first=new Date(YEAR,m,1),last=new Date(YEAR,m+1,0);let sdow=first.getDay();sdow=sdow===0?6:sdow-1;html+='<div class="mc card"><div class="mn">'+MN[m]+' '+YEAR+'</div><div class="cg7">';for(const dn of DN)html+='<div class="cdh">'+dn+'</div>';for(let i=0;i<sdow;i++)html+='<div class="cd e"></div>';for(let day=1;day<=last.getDate();day++){const dt=new Date(YEAR,m,day),key=iso(dt);let cls='cd';if(dt.getDay()===0)cls+=' su';else if(CFG.ftExcl&&FT_SET.has(key))cls+=' ft';else if((CFG.ferienExcl&&SCHULFERIEN.some(f=>dt>=d(f.start)&&dt<=d(f.end)))||CFG.sperrzeiten.some(z=>dt>=d(z.start)&&dt<=d(z.end)))cls+=' fe';else if(urlSet.has(key))cls+=' ur';else if(puSet.has(key))cls+=' pu';html+='<div class="'+cls+'">'+day+'</div>';}html+='</div></div>';}
   grid.innerHTML=html;
 }
 
@@ -804,8 +904,8 @@ function resetAll(){
   RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=null;
   APPR={status:null,approvedAt:null,approver:'',history:[]};
   localStorage.removeItem(sKey(YEAR));saveAppr();
-  document.getElementById('dash-res').innerHTML='<div class="empty"><div class="ei">&#9672;</div>Optionen berechnen \u2192 Mein Plan zusammenstellen</div>';
-  document.getElementById('gen-icon').textContent='\u26A1';
+  document.getElementById('dash-res').innerHTML='<div class="empty"><div class="ei">&#9672;</div>Optionen berechnen → Mein Plan zusammenstellen</div>';
+  document.getElementById('gen-icon').textContent='⚡';
   document.getElementById('gen-txt').textContent='Optionen berechnen';
   document.getElementById('plan-status').textContent='ENTWURF';document.getElementById('plan-status').className='badge bm';
   document.getElementById('appr-dot').style.display='none';
@@ -814,7 +914,7 @@ function resetAll(){
 
 /* ── year ── */
 function changeYear(dir){const idx=AVAIL_YEARS.indexOf(YEAR),ni=idx+dir;if(ni<0||ni>=AVAIL_YEARS.length)return;setYear(AVAIL_YEARS[ni]);}
-function setYear(y){YEAR=y;refreshData(y);const ld=loadState();if(!ld){RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=null;}loadAppr();if(!CALC_DONE){document.getElementById('gen-icon').textContent='\u26A1';document.getElementById('gen-txt').textContent='Optionen berechnen';}renderAll();updateYearModal();logAdd('info','Jahr \u2192 '+y+' '+(ld?'(geladen)':'(neu)'));}
+function setYear(y){YEAR=y;refreshData(y);const ld=loadState();if(!ld){RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=null;}loadAppr();if(!CALC_DONE){document.getElementById('gen-icon').textContent='⚡';document.getElementById('gen-txt').textContent='Optionen berechnen';}renderAll();updateYearModal();logAdd('info','Jahr → '+y+' '+(ld?'(geladen)':'(neu)'));}
 function openYearModal(){updateYearModal();document.getElementById('yr-modal').classList.add('open');}
 function closeYearModal(e){if(!e||e.target===document.getElementById('yr-modal'))document.getElementById('yr-modal').classList.remove('open');}
 function updateYearModal(){document.getElementById('yr-opts').innerHTML=AVAIL_YEARS.map(y=>'<div class="yr-o'+(y===YEAR?' sel':'')+'" onclick="setYear('+y+');document.getElementById(\'yr-modal\').classList.remove(\'open\')">'+y+'</div>').join('');}
@@ -836,7 +936,7 @@ let tT=null;function showToast(msg){const t=document.getElementById('toast');t.t
   const bar=document.getElementById('tabbar'),w=bar.offsetWidth/6;
   document.getElementById('tline').style.left='0px';document.getElementById('tline').style.width=w+'px';
   renderAll();
-  if(CALC_DONE){document.getElementById('gen-icon').textContent='\u2713';document.getElementById('gen-txt').textContent='Neu berechnen';logAdd('info','VARIK '+YEAR+' \u2014 geladen');}
+  if(CALC_DONE){document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';logAdd('info','IRIS Holiday '+YEAR+' — geladen');}
 })();
 </script>
 </body>
