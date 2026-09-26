@@ -596,11 +596,6 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
         <option value="BE">Berlin</option>
       </select>
     </div>
-    <div class="field-row">
-      <label class="field-label" for="in-alts">Optionen je Quartal</label>
-      <div class="field-desc">Anzahl berechneter Alternativen (1–5).</div>
-      <input type="number" class="field" id="in-alts" min="1" max="5" step="1" oninput="onNum('alts',this.value)">
-    </div>
   </div>
   <button class="btn-cfg-save" onclick="saveSettings()">&#9881; Einstellungen speichern</button>
   <div style="height:8px"></div>
@@ -747,20 +742,26 @@ function refreshData(y){
 
 /* ── engine ── */
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
-const MAX_BLOCK=12;
+const MAX_BLOCK=12,SHORT_BLOCK=6;
+const TIER_LABEL=['Lang','Kurz','Flexibel'];
 function blockAt(cur,qEd,len){let p=new Date(cur),col=0;while(col<len&&p<=qEd){if(isWork(p))col++;if(col<len)p=addD(p,1);}if(p>qEd||col<len)return null;if(!hasBuf(cur,p))return null;let x=new Date(cur);while(x<=p){if(isBlocked(x))return null;x=addD(x,1);}return{start:new Date(cur),end:p,workdays:cntWork(cur,p)};}
-function genC(qS,qE,bTgtMax,max){
-  const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);
-  const cap=Math.min(bTgtMax,MAX_BLOCK);let att=0;
-  while(cur<=qEd&&res.length<max){
-    if(++att>800)break;
-    if(!isWork(cur)){cur=addD(cur,1);continue;}
-    let found=null;
-    for(let len=cap;len>=1;len--){found=blockAt(cur,qEd,len);if(found)break;}
-    if(found){res.push(found);cur=addD(cur,7);}
-    else{cur=addD(cur,1);}
+function searchExact(qS,qE,len,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}const found=blockAt(cur,qEd,len);if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
+function searchFlexible(qS,qE,capLen,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}let found=null;for(let len=capLen;len>=1;len--){found=blockAt(cur,qEd,len);if(found)break;}if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
+function buildQuarterOptions(q){const longArr=searchExact(q.start,q.end,MAX_BLOCK,1);const shortArr=searchExact(q.start,q.end,SHORT_BLOCK,1);return[longArr[0]||null,shortArr[0]||null,null];}
+function recomputeSmart(){
+  const tot=effTotal();let used=0;const flexible=[];
+  for(const q of QUARTALS){
+    const i=MY_PLAN[q.id];
+    if(i===0||i===1){if(RESULTS[q.id]&&RESULTS[q.id][i])used+=RESULTS[q.id][i].workdays;}
+    else flexible.push(q.id);
   }
-  return res;
+  const remaining=Math.max(0,tot-used);
+  const each=flexible.length?Math.max(1,Math.min(MAX_BLOCK,Math.round(remaining/flexible.length))):0;
+  for(const q of QUARTALS){
+    const arr=RESULTS[q.id];if(!arr)continue;
+    if(!flexible.includes(q.id))continue;
+    arr[2]=each>0?(searchFlexible(q.start,q.end,each,1)[0]||null):null;
+  }
 }
 
 /* ── settings — vereinfachte Eingabelogik (native input/select statt Custom-Stepper/Chips) ── */
@@ -768,7 +769,7 @@ function loadSettings(){try{const r=localStorage.getItem(SK);if(!r)return;const 
 function saveSettingsStorage(){localStorage.setItem(SK,JSON.stringify(CFG));}
 function syncUI(){
   const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
-  sv('in-total',CFG.totalDays);sv('in-carry',CFG.carryOver);sv('in-special',CFG.specialDays);sv('in-taken',CFG.takenDays);sv('in-puffer',CFG.puffer);sv('in-alts',CFG.alts);
+  sv('in-total',CFG.totalDays);sv('in-carry',CFG.carryOver);sv('in-special',CFG.specialDays);sv('in-taken',CFG.takenDays);sv('in-puffer',CFG.puffer);
   sv('in-q1',CFG.qTargets.Q1);sv('in-q2',CFG.qTargets.Q2);sv('in-q3',CFG.qTargets.Q3);sv('in-q4',CFG.qTargets.Q4);
   document.getElementById('tog-ferien').checked=CFG.ferienExcl;document.getElementById('tog-ft').checked=CFG.ftExcl;document.getElementById('tog-sa').checked=CFG.samstag;
   document.getElementById('st-name').value=CFG.name;document.getElementById('st-supervisor').value=CFG.supervisor||'';
@@ -794,8 +795,8 @@ const sKey=y=>'irisholiday_'+y;
 function getMeta(){try{return JSON.parse(localStorage.getItem('irisholiday_meta'))||{};}catch{return{};}}
 function saveMeta(o){localStorage.setItem('irisholiday_meta',JSON.stringify(o));}
 function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){localStorage.removeItem(sKey(t.getFullYear()-1));localStorage.removeItem(AK(t.getFullYear()-1));m[k]=true;saveMeta(m);}}
-function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>({...x,start:iso(x.start),end:iso(x.end)}));return o;}
-function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>({...x,start:d(x.start),end:d(x.end)}));return o;}
+function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:iso(x.start),end:iso(x.end)}:null);return o;}
+function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:d(x.start),end:d(x.end)}:null);return o;}
 function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({results:serR(RESULTS),calcDone:CALC_DONE,myPlan:MY_PLAN,myPlanSaved:MY_PLAN_SAVED,manualDays:[...MANUAL_DAYS],year:YEAR,savedAt:new Date().toISOString()}));}
 function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=data.myPlanSaved||null;MANUAL_DAYS=new Set(data.manualDays||[]);return true;}catch{return false;}}
 
@@ -807,7 +808,9 @@ function generateOptions(cb){
     logClear();logAdd('info','Engine — '+CFG.bundesland+' '+YEAR+' — '+CFG.workModel+' — Puffer: '+CFG.puffer+' AT');logAdd('info','Kontingent: '+effTotal()+' AT');
     FEIERTAGE.forEach(f=>logAdd('feiertag',fmt(d(f.date))+' — '+f.name));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>logAdd('ferien',fmt(d(f.start))+' – '+fmt(d(f.end))+' — '+f.name));CFG.sperrzeiten.forEach(z=>logAdd('ferien','Sperre: '+z.name));
     logAdd('info','Planungsbeginn: '+MN3[CFG.startMonth-1]+' — Q1 startet ab '+fmt(d(QUARTALS[0].start)));
-    RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
+    RESULTS={};for(const q of QUARTALS)RESULTS[q.id]=buildQuarterOptions(q);
+    recomputeSmart();
+    for(const q of QUARTALS){const arr=RESULTS[q.id];const cnt=arr.filter(Boolean).length;logAdd('puffer',q.id+': '+cnt+'/3 Optionen verf\xFCgbar (Ziel: '+q.target+' AT)');arr.forEach((x,i)=>{if(x)logAdd('info','  '+TIER_LABEL[i]+': '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)');});}
     CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK ✓');
     saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';
     if(typeof cb==='function')cb();
@@ -823,7 +826,21 @@ function openOnboard(){
 }
 function closeOnboard(){document.getElementById('onboard-modal').classList.remove('open');}
 function autoSelectAndSave(){
-  for(const q of QUARTALS){const opts=RESULTS[q.id]||[];MY_PLAN[q.id]=opts.length?0:null;}
+  const wantedDays=CFG.qTargets.Q1;
+  for(const q of QUARTALS){
+    const opts=RESULTS[q.id]||[];
+    let idx=null;
+    if(q.id==='Q1'){
+      const inMonth=[];opts.forEach((o,i)=>{if(o&&o.start.getMonth()+1===CFG.startMonth)inMonth.push(i);});
+      const candIdx=inMonth.length?inMonth:opts.map((o,i)=>o?i:null).filter(i=>i!==null);
+      let bestDiff=Infinity;
+      candIdx.forEach(i=>{const diff=Math.abs(opts[i].workdays-wantedDays);if(diff<bestDiff){bestDiff=diff;idx=i;}});
+    }else{
+      idx=opts[2]?2:(opts[0]?0:(opts[1]?1:null));
+    }
+    MY_PLAN[q.id]=idx;
+    recomputeSmart();
+  }
   renderPlanSels();updPlanBudget();renderCalendar();
   saveMyPlan();
   showToast('Jahresplan automatisch erstellt ✓');
@@ -842,20 +859,23 @@ function onboardSubmit(){
 
 /* ── plan builder ── */
 function planBudget(){let t=0;for(const q of QUARTALS){const i=MY_PLAN[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])t+=RESULTS[q.id][i].workdays;}return t+MANUAL_DAYS.size;}
-function selectOpt(qid,idx){MY_PLAN[qid]=(MY_PLAN[qid]===idx)?null:idx;renderPlanSels();updPlanBudget();renderCalendar();}
+function selectOpt(qid,idx){MY_PLAN[qid]=(MY_PLAN[qid]===idx)?null:idx;recomputeSmart();renderPlanSels();updPlanBudget();renderCalendar();}
 function renderPlanSels(){
   if(!CALC_DONE){document.getElementById('plan-no-calc').style.display='block';document.getElementById('plan-sels').innerHTML='';return;}
   document.getElementById('plan-no-calc').style.display='none';
   const QC={Q1:'var(--slate)',Q2:'var(--sun-l)',Q3:'var(--mint)',Q4:'var(--lime)'};
   let html='';
   for(const q of QUARTALS){
-    const opts=RESULTS[q.id]||[],sel=MY_PLAN[q.id];
+    const opts=RESULTS[q.id]||[null,null,null],sel=MY_PLAN[q.id];
     const stxt=sel!==null&&opts[sel]?'Opt.'+'ABC'[sel]+' \xB7 '+opts[sel].workdays+' AT':'Keine Auswahl';
     const zielTxt='Ziel: '+q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck, Rest manuell)':'');
     html+='<div class="q-sel card"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+q.id+' \xB7 '+qLabel(q)+' ('+zielTxt+')</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
-    if(!opts.length){html+='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';}
+    if(!opts.some(Boolean)){html+='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';}
     else{
-      opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});
+      opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
+        if(!o){html+='<div class="opt-row" style="opacity:.4;pointer-events:none"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">Nicht verf\xFCgbar in diesem Zeitraum</div></div><div class="opt-days" style="color:var(--text-faint)">–</div></div>';return;}
+        html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
+      });
       html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
     }
     html+='</div></div>';
@@ -985,7 +1005,7 @@ function updateKPIs(){
 }
 function renderDash(){
   const c=document.getElementById('dash-res');if(!CALC_DONE)return;let html='';
-  for(const q of QUARTALS){const opts=RESULTS[q.id]||[];const zielTxt=q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck)':'');html+='<div style="margin-bottom:16px"><div class="sh" style="margin-top:'+(q.id==='Q1'?'3px':'0')+'"><div class="sh-t">'+q.id+' — Ziel: '+zielTxt+'</div>'+(opts.length?'<span class="badge bgg">'+opts.length+' Opt.</span>':'<span class="badge br">Keine</span>')+'</div><div class="res-cards">';if(!opts.length)html+='<div class="empty" style="padding:16px"><div class="ei" style="font-size:16px">⚠</div>Keine valide Option</div>';else opts.forEach((o,i)=>{const cls=['ta','tb2','tc'][i];html+='<div class="res-card card"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="rc-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div><div class="rc-ok">✓ Puffer ('+CFG.puffer+' AT) ok</div></div><div class="rc-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});html+='</div></div>';}
+  for(const q of QUARTALS){const opts=RESULTS[q.id]||[null,null,null];const avail=opts.filter(Boolean).length;const zielTxt=q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck)':'');html+='<div style="margin-bottom:16px"><div class="sh" style="margin-top:'+(q.id==='Q1'?'3px':'0')+'"><div class="sh-t">'+q.id+' — Ziel: '+zielTxt+'</div>'+(avail?'<span class="badge bgg">'+avail+'/3 Opt.</span>':'<span class="badge br">Keine</span>')+'</div><div class="res-cards">';if(!avail)html+='<div class="empty" style="padding:16px"><div class="ei" style="font-size:16px">⚠</div>Keine valide Option</div>';else opts.forEach((o,i)=>{const cls=['ta','tb2','tc'][i];if(!o){html+='<div class="res-card card" style="opacity:.4"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="rc-dates">Nicht verf\xFCgbar</div></div></div>';return;}html+='<div class="res-card card"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="rc-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div><div class="rc-ok">✓ Puffer ('+CFG.puffer+' AT) ok</div></div><div class="rc-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});html+='</div></div>';}
   c.innerHTML=html;
 }
 function renderCalendar(){
