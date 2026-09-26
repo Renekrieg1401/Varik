@@ -748,7 +748,20 @@ function refreshData(y){
 /* ── engine ── */
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
 const MAX_BLOCK=12;
-function genC(qS,qE,tgt,max){const bTgt=Math.min(tgt,MAX_BLOCK);const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);while(cur.getDay()!==1)cur=addD(cur,1);let att=0;while(cur<=qEd&&res.length<max){if(++att>400)break;if(!isWork(cur)){cur=addD(cur,7);continue;}let p=new Date(cur),col=0;while(col<bTgt&&p<=qEd){if(isWork(p))col++;if(col<bTgt)p=addD(p,1);}if(p>qEd){cur=addD(cur,7);continue;}const ok=hasBuf(cur,p);let blk=false;let x=new Date(cur);while(x<=p){if(isBlocked(x)){blk=true;break;}x=addD(x,1);}if(ok&&!blk)res.push({start:new Date(cur),end:new Date(p),workdays:cntWork(cur,p)});cur=addD(cur,7);}return res;}
+function blockAt(cur,qEd,len){let p=new Date(cur),col=0;while(col<len&&p<=qEd){if(isWork(p))col++;if(col<len)p=addD(p,1);}if(p>qEd||col<len)return null;if(!hasBuf(cur,p))return null;let x=new Date(cur);while(x<=p){if(isBlocked(x))return null;x=addD(x,1);}return{start:new Date(cur),end:p,workdays:cntWork(cur,p)};}
+function genC(qS,qE,bTgtMax,max){
+  const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);
+  const cap=Math.min(bTgtMax,MAX_BLOCK);let att=0;
+  while(cur<=qEd&&res.length<max){
+    if(++att>800)break;
+    if(!isWork(cur)){cur=addD(cur,1);continue;}
+    let found=null;
+    for(let len=cap;len>=1;len--){found=blockAt(cur,qEd,len);if(found)break;}
+    if(found){res.push(found);cur=addD(cur,7);}
+    else{cur=addD(cur,1);}
+  }
+  return res;
+}
 
 /* ── settings — vereinfachte Eingabelogik (native input/select statt Custom-Stepper/Chips) ── */
 function loadSettings(){try{const r=localStorage.getItem(SK);if(!r)return;const s=JSON.parse(r);Object.assign(CFG,s);if(s.qTargets)CFG.qTargets={...DEF.qTargets,...s.qTargets};if(s.sperrzeiten)CFG.sperrzeiten=[...s.sperrzeiten];}catch{}}
