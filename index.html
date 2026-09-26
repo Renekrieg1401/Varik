@@ -157,14 +157,8 @@ body{height:100%;overflow:hidden;font-family:var(--font-sans);font-size:var(--fs
   touch-action:manipulation;transition:border-color .15s,color .15s;margin-bottom:16px;min-height:48px}
 .btn-sec:active{border-color:var(--primary-light);color:var(--ink)}
 
-/* ── RESULT CARDS ── */
-.res-cards{display:flex;flex-direction:column;gap:8px}
-.res-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.rc-left{flex:1;min-width:0}
-.rc-tag{font-family:var(--font-mono);font-size:var(--fs-xs);padding:3px 7px;border-radius:5px;display:inline-block;margin-bottom:4px}
+/* ── OPTION TAGS (Lang/Kurz/Flexibel) ── */
 .ta{background:rgba(224,224,224,.14);color:var(--slate)}.tb2{background:rgba(209,172,0,.15);color:var(--sun-l)}.tc{background:rgba(168,190,221,.15);color:var(--mint)}
-.rc-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.rc-ok{font-size:var(--fs-sm);color:var(--green-l);margin-top:2px}
-.rc-days{font-family:var(--font-mono);font-size:var(--fs-h2);font-weight:800;color:var(--sun-l);white-space:nowrap}
 
 /* ── PLAN BUILDER ── */
 .plan-hdr{padding:13px 15px;margin-bottom:14px}
@@ -420,12 +414,12 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <button class="btn-gen" id="gen-btn" onclick="generateOptions()"><span id="gen-icon">&#9889;</span><span id="gen-txt">Optionen berechnen</span></button>
   <button class="btn-sec" onclick="openOnboard()" style="margin-bottom:8px">&#8635; Setup-Assistent erneut öffnen</button>
   <button class="btn-sec" onclick="resetAll()">&#10060; Reset (Plan löschen)</button>
-  <div id="dash-res"><div class="empty"><div class="ei">&#9672;</div>Optionen berechnen → Mein Plan zusammenstellen</div></div>
+  <div id="dash-res"><div class="empty"><div class="ei">&#9672;</div>Optionen berechnen, dann hier auswählen</div></div>
 </div>
 
 <!-- MEIN PLAN -->
 <div id="view-plan" class="view">
-  <div class="sh"><div class="sh-t">Mein Plan zusammenstellen</div><span class="badge bgg" id="plan-badge">0 AT</span></div>
+  <div class="sh"><div class="sh-t">Meine Zusammenstellung</div><span class="badge bgg" id="plan-badge">0 AT</span></div>
   <div class="plan-hdr card">
     <div class="plan-top"><div class="plan-title">Budget <span style="font-family:var(--font-mono);color:var(--sun-l)" id="plan-yr">2027</span></div><span class="badge bm" id="plan-status">ENTWURF</span></div>
     <div class="pbudget-bar"><div class="pbudget-fill" id="p-bar" style="width:0%"></div></div>
@@ -435,7 +429,7 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
       <span class="pbn">Ziel: <span id="pb-target">36</span> AT</span>
     </div>
   </div>
-  <div id="plan-no-calc" style="display:none"><div class="empty"><div class="ei">&#9647;</div>Zuerst Dashboard → Optionen berechnen</div></div>
+  <div id="plan-no-calc" style="display:none"><div class="empty"><div class="ei">&#9647;</div>Zuerst im Board Optionen berechnen und auswählen</div></div>
   <div id="plan-sels"></div>
   <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div id="saved-wrap" style="display:none">
@@ -753,6 +747,7 @@ function recomputeSmart(){
   for(const q of QUARTALS){
     const i=MY_PLAN[q.id];
     if(i===0||i===1){if(RESULTS[q.id]&&RESULTS[q.id][i])used+=RESULTS[q.id][i].workdays;}
+    else if(i===-1){/* explizit "Kein Urlaub" -- 0 AT, nicht Teil der Restverteilung */}
     else flexible.push(q.id);
   }
   const remaining=Math.max(0,tot-used);
@@ -797,9 +792,11 @@ function saveMeta(o){localStorage.setItem('irisholiday_meta',JSON.stringify(o));
 function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){localStorage.removeItem(sKey(t.getFullYear()-1));localStorage.removeItem(AK(t.getFullYear()-1));m[k]=true;saveMeta(m);}}
 function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:iso(x.start),end:iso(x.end)}:null);return o;}
 function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:d(x.start),end:d(x.end)}:null);return o;}
-const SCHEMA_VERSION=2;
-function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({schema:SCHEMA_VERSION,results:serR(RESULTS),calcDone:CALC_DONE,myPlan:MY_PLAN,myPlanSaved:MY_PLAN_SAVED,manualDays:[...MANUAL_DAYS],year:YEAR,savedAt:new Date().toISOString()}));}
-function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;if(data.schema!==SCHEMA_VERSION)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=data.myPlanSaved||null;MANUAL_DAYS=new Set(data.manualDays||[]);return true;}catch{return false;}}
+const SCHEMA_VERSION=3;
+function serPlan(p){if(!p)return null;const o={};for(const[k,v]of Object.entries(p))o[k]=v?{...v,start:iso(v.start),end:iso(v.end)}:null;return o;}
+function desPlan(p){if(!p)return null;const o={};for(const[k,v]of Object.entries(p))o[k]=v?{...v,start:d(v.start),end:d(v.end)}:null;return o;}
+function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({schema:SCHEMA_VERSION,results:serR(RESULTS),calcDone:CALC_DONE,myPlan:MY_PLAN,myPlanSaved:serPlan(MY_PLAN_SAVED),manualDays:[...MANUAL_DAYS],year:YEAR,savedAt:new Date().toISOString()}));}
+function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;if(data.schema!==SCHEMA_VERSION)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=desPlan(data.myPlanSaved);MANUAL_DAYS=new Set(data.manualDays||[]);return true;}catch{return false;}}
 
 /* ── generate ── */
 function generateOptions(cb){
@@ -836,8 +833,9 @@ function autoSelectAndSave(){
       const candIdx=inMonth.length?inMonth:opts.map((o,i)=>o?i:null).filter(i=>i!==null);
       let bestDiff=Infinity;
       candIdx.forEach(i=>{const diff=Math.abs(opts[i].workdays-wantedDays);if(diff<bestDiff){bestDiff=diff;idx=i;}});
+      if(idx===null)idx=-1;
     }else{
-      idx=opts[2]?2:(opts[0]?0:(opts[1]?1:null));
+      idx=opts[2]?2:(opts[0]?0:(opts[1]?1:-1));
     }
     MY_PLAN[q.id]=idx;
     recomputeSmart();
@@ -860,27 +858,37 @@ function onboardSubmit(){
 
 /* ── plan builder ── */
 function planBudget(){let t=0;for(const q of QUARTALS){const i=MY_PLAN[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])t+=RESULTS[q.id][i].workdays;}return t+MANUAL_DAYS.size;}
-function selectOpt(qid,idx){MY_PLAN[qid]=(MY_PLAN[qid]===idx)?null:idx;recomputeSmart();renderPlanSels();updPlanBudget();renderCalendar();}
+function selectOpt(qid,idx){
+  MY_PLAN[qid]=(idx===null)?(MY_PLAN[qid]===-1?null:-1):(MY_PLAN[qid]===idx?null:idx);
+  recomputeSmart();renderPlanSels();updPlanBudget();renderCalendar();
+  const ps=document.getElementById('plan-status');
+  if(planDirty()){ps.textContent='ENTWURF (ungespeichert)';ps.className='badge bg';}
+  else{ps.textContent='GESPEICHERT';ps.className='badge bgg';}
+}
+function renderOptionRows(q){
+  const opts=RESULTS[q.id]||[null,null,null],sel=MY_PLAN[q.id];
+  if(!opts.some(Boolean))return'<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';
+  let html='';
+  opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
+    if(!o){html+='<div class="opt-row" style="opacity:.4;pointer-events:none"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">Nicht verf\xFCgbar in diesem Zeitraum</div></div><div class="opt-days" style="color:var(--text-faint)">–</div></div>';return;}
+    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
+  });
+  html+='<div class="opt-row none-row'+(sel===-1?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
+  return html;
+}
 function renderPlanSels(){
   if(!CALC_DONE){document.getElementById('plan-no-calc').style.display='block';document.getElementById('plan-sels').innerHTML='';return;}
   document.getElementById('plan-no-calc').style.display='none';
   const QC={Q1:'var(--slate)',Q2:'var(--sun-l)',Q3:'var(--mint)',Q4:'var(--lime)'};
-  let html='';
+  let html='<div class="card" style="padding:4px 0">';
   for(const q of QUARTALS){
-    const opts=RESULTS[q.id]||[null,null,null],sel=MY_PLAN[q.id];
-    const stxt=sel!==null&&opts[sel]?'Opt.'+'ABC'[sel]+' \xB7 '+opts[sel].workdays+' AT':'Keine Auswahl';
-    const zielTxt='Ziel: '+q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck, Rest manuell)':'');
-    html+='<div class="q-sel card"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+q.id+' \xB7 '+qLabel(q)+' ('+zielTxt+')</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
-    if(!opts.some(Boolean)){html+='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';}
-    else{
-      opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
-        if(!o){html+='<div class="opt-row" style="opacity:.4;pointer-events:none"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">Nicht verf\xFCgbar in diesem Zeitraum</div></div><div class="opt-days" style="color:var(--text-faint)">–</div></div>';return;}
-        html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
-      });
-      html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
-    }
-    html+='</div></div>';
+    const i=MY_PLAN[q.id],o=(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])?RESULTS[q.id][i]:null;
+    html+='<div class="sp-row" style="padding:10px 15px"><span class="sp-q" style="color:'+QC[q.id]+';min-width:26px">'+q.id+'</span>';
+    html+=o?('<span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span>')
+           :('<span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span>');
+    html+='</div>';
   }
+  html+='</div>';
   document.getElementById('plan-sels').innerHTML=html;
 }
 function updPlanBudget(){
@@ -889,8 +897,22 @@ function updPlanBudget(){
   document.getElementById('save-btn').disabled=!Object.values(MY_PLAN).some(v=>v!==null);
   document.getElementById('p-bar').style.background=used>tot?'#e88':used===tot?'var(--green-l)':'linear-gradient(90deg,var(--mint),var(--sun))';
 }
+function planDirty(){
+  if(!MY_PLAN_SAVED)return Object.values(MY_PLAN).some(v=>v!==null);
+  for(const q of QUARTALS){
+    const i=MY_PLAN[q.id],cur=(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])?RESULTS[q.id][i]:null,saved=MY_PLAN_SAVED[q.id];
+    if(!cur&&!saved)continue;
+    if(!cur||!saved)return true;
+    if(iso(cur.start)!==iso(saved.start)||iso(cur.end)!==iso(saved.end))return true;
+  }
+  return false;
+}
 function saveMyPlan(){
-  MY_PLAN_SAVED=JSON.parse(JSON.stringify(MY_PLAN));
+  MY_PLAN_SAVED={};
+  for(const q of QUARTALS){
+    const i=MY_PLAN[q.id];
+    MY_PLAN_SAVED[q.id]=(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])?{start:new Date(RESULTS[q.id][i].start),end:new Date(RESULTS[q.id][i].end),workdays:RESULTS[q.id][i].workdays}:null;
+  }
   // Plan gespeichert → automatisch ausstehend (gilt als abgelehnt bis genehmigt)
   if(APPR.status!=='approved'){
     APPR={status:'pending',approvedAt:null,approver:'',history:[...(APPR.history||[])]};
@@ -904,7 +926,7 @@ function renderSavedPlan(){
   const wrap=document.getElementById('saved-wrap'),card=document.getElementById('saved-card');
   if(!MY_PLAN_SAVED){wrap.style.display='none';return;}
   wrap.style.display='block';let total=0,html='';
-  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];total+=o.workdays;html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}else html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';}
+  for(const q of QUARTALS){const o=MY_PLAN_SAVED[q.id];if(o){total+=o.workdays;html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}else html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';}
   const nm=CFG.name?' \xB7 '+CFG.name:'';
   card.innerHTML='<div class="sp-title">✓ Jahresplan '+YEAR+nm+' — '+total+' Urlaubstage</div>'+html;
 }
@@ -950,7 +972,7 @@ function renderApprView(){
 
   /* Plan-Zeilen */
   let planRows='',totalDays=0;
-  for(const q of QUARTALS){const i=MY_PLAN_SAVED[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const o=RESULTS[q.id][i];totalDays+=o.workdays;planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="ap-days">'+o.workdays+' AT</span></div>';}else{planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-none">Kein Urlaub</span><span class="ap-days" style="color:var(--text-faint)">0</span></div>';}}
+  for(const q of QUARTALS){const o=MY_PLAN_SAVED[q.id];if(o){totalDays+=o.workdays;planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="ap-days">'+o.workdays+' AT</span></div>';}else{planRows+='<div class="ap-row"><span class="ap-q">'+q.id+'</span><span class="ap-none">Kein Urlaub</span><span class="ap-days" style="color:var(--text-faint)">0</span></div>';}}
   if(MANUAL_DAYS.size){totalDays+=MANUAL_DAYS.size;planRows+='<div class="ap-row"><span class="ap-q">✎</span><span class="ap-date">'+MANUAL_DAYS.size+' manuell geplante Tage</span><span class="ap-days">'+MANUAL_DAYS.size+' AT</span></div>';}
 
   /* Banner */
@@ -998,22 +1020,35 @@ function renderApprView(){
 
 /* ── render all ── */
 function renderAll(){updQLabels();updateKPIs();renderDash();renderPlanSels();updPlanBudget();renderSavedPlan();renderManualDays();renderCalendar();renderApprView();document.getElementById('yr-disp').textContent=YEAR;const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;updateKPIsAppr();}
+function resolvedFor(qid){
+  if(MY_PLAN_SAVED)return MY_PLAN_SAVED[qid]||null;
+  const i=MY_PLAN[qid];
+  return(i!==null&&RESULTS[qid]&&RESULTS[qid][i])?RESULTS[qid][i]:null;
+}
 function updateKPIs(){
-  const plan=MY_PLAN_SAVED||MY_PLAN;let total=0;for(const q of QUARTALS){const i=plan[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i])total+=RESULTS[q.id][i].workdays;}
+  let total=0;for(const q of QUARTALS){const o=resolvedFor(q.id);if(o)total+=o.workdays;}
   total+=MANUAL_DAYS.size;
   const tot=effTotal();document.getElementById('kv').textContent=total;document.getElementById('kr').textContent=Math.max(tot-total,0);document.getElementById('pill-val').textContent=total+'/'+tot;
-  [['Q1','qb1'],['Q2','qb2'],['Q3','qb3'],['Q4','qb4']].forEach(([qid,bid],qi)=>{const i=plan[qid],o=RESULTS[qid]||[];document.getElementById(bid).style.width=(i!==null&&o[i])?Math.min(Math.round(o[i].workdays/QUARTALS[qi].target*100),100)+'%':'0%';});
+  [['Q1','qb1'],['Q2','qb2'],['Q3','qb3'],['Q4','qb4']].forEach(([qid,bid],qi)=>{const o=resolvedFor(qid);document.getElementById(bid).style.width=o?Math.min(Math.round(o.workdays/QUARTALS[qi].target*100),100)+'%':'0%';});
 }
 function renderDash(){
-  const c=document.getElementById('dash-res');if(!CALC_DONE)return;let html='';
-  for(const q of QUARTALS){const opts=RESULTS[q.id]||[null,null,null];const avail=opts.filter(Boolean).length;const zielTxt=q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck)':'');html+='<div style="margin-bottom:16px"><div class="sh" style="margin-top:'+(q.id==='Q1'?'3px':'0')+'"><div class="sh-t">'+q.id+' — Ziel: '+zielTxt+'</div>'+(avail?'<span class="badge bgg">'+avail+'/3 Opt.</span>':'<span class="badge br">Keine</span>')+'</div><div class="res-cards">';if(!avail)html+='<div class="empty" style="padding:16px"><div class="ei" style="font-size:16px">⚠</div>Keine valide Option</div>';else opts.forEach((o,i)=>{const cls=['ta','tb2','tc'][i];if(!o){html+='<div class="res-card card" style="opacity:.4"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="rc-dates">Nicht verf\xFCgbar</div></div></div>';return;}html+='<div class="res-card card"><div class="rc-left"><div class="rc-tag '+cls+'">'+q.id+'-'+'ABC'[i]+' \xB7 '+TIER_LABEL[i]+'</div><div class="rc-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div><div class="rc-ok">✓ Puffer ('+CFG.puffer+' AT) ok</div></div><div class="rc-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';});html+='</div></div>';}
+  const c=document.getElementById('dash-res');if(!CALC_DONE)return;
+  const QC={Q1:'var(--slate)',Q2:'var(--sun-l)',Q3:'var(--mint)',Q4:'var(--lime)'};
+  let html='';
+  for(const q of QUARTALS){
+    const opts=RESULTS[q.id]||[null,null,null],sel=MY_PLAN[q.id];
+    const stxt=sel!==null&&opts[sel]?'Opt.'+'ABC'[sel]+' \xB7 '+opts[sel].workdays+' AT':'Keine Auswahl';
+    const zielTxt='Ziel: '+q.target+' AT'+(q.target>MAX_BLOCK?' (max. '+MAX_BLOCK+' am St\xFCck, Rest manuell)':'');
+    html+='<div class="q-sel card" style="margin-bottom:16px"><div class="qs-hd"><div class="qs-q" style="color:'+QC[q.id]+'"><span style="width:8px;height:8px;background:'+QC[q.id]+';border-radius:50%;display:inline-block"></span>'+q.id+' \xB7 '+qLabel(q)+' ('+zielTxt+')</div><span class="qs-status" style="color:'+(sel!==null?'var(--green-l)':'var(--text-faint)')+'">'+stxt+'</span></div><div class="qs-body">';
+    html+=renderOptionRows(q);
+    html+='</div></div>';
+  }
   c.innerHTML=html;
 }
 function renderCalendar(){
   document.getElementById('kal-yr').textContent=YEAR;
   const grid=document.getElementById('cal-grid');const urlSet=new Set(),puSet=new Set();
-  const ap=MY_PLAN_SAVED||(CALC_DONE?MY_PLAN:null);
-  if(ap)for(const q of QUARTALS){const i=ap[q.id];if(i!==null&&RESULTS[q.id]&&RESULTS[q.id][i]){const pt=RESULTS[q.id][i];let p=new Date(pt.start);while(p<=pt.end){if(isWork(p))urlSet.add(iso(p));p=addD(p,1);}for(let k=1;k<=12;k++){const b=addD(pt.start,-k),a=addD(pt.end,k);if(isWork(b))puSet.add(iso(b));if(isWork(a))puSet.add(iso(a));}}}
+  if(MY_PLAN_SAVED||CALC_DONE)for(const q of QUARTALS){const pt=resolvedFor(q.id);if(pt){let p=new Date(pt.start);while(p<=pt.end){if(isWork(p))urlSet.add(iso(p));p=addD(p,1);}for(let k=1;k<=12;k++){const b=addD(pt.start,-k),a=addD(pt.end,k);if(isWork(b))puSet.add(iso(b));if(isWork(a))puSet.add(iso(a));}}}
   const DN=['Mo','Di','Mi','Do','Fr','Sa','So'];let html='';
   for(let m=CFG.startMonth;m<=12;m++){
     const y=YEAR;
@@ -1046,7 +1081,7 @@ function resetAll(){
   RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=null;MANUAL_DAYS=new Set();
   APPR={status:null,approvedAt:null,approver:'',history:[]};
   localStorage.removeItem(sKey(YEAR));saveAppr();
-  document.getElementById('dash-res').innerHTML='<div class="empty"><div class="ei">&#9672;</div>Optionen berechnen → Mein Plan zusammenstellen</div>';
+  document.getElementById('dash-res').innerHTML='<div class="empty"><div class="ei">&#9672;</div>Optionen berechnen, dann hier auswählen</div>';
   document.getElementById('gen-icon').textContent='⚡';
   document.getElementById('gen-txt').textContent='Optionen berechnen';
   document.getElementById('plan-status').textContent='ENTWURF';document.getElementById('plan-status').className='badge bm';
