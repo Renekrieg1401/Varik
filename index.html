@@ -797,8 +797,9 @@ function saveMeta(o){localStorage.setItem('irisholiday_meta',JSON.stringify(o));
 function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){localStorage.removeItem(sKey(t.getFullYear()-1));localStorage.removeItem(AK(t.getFullYear()-1));m[k]=true;saveMeta(m);}}
 function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:iso(x.start),end:iso(x.end)}:null);return o;}
 function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:d(x.start),end:d(x.end)}:null);return o;}
-function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({results:serR(RESULTS),calcDone:CALC_DONE,myPlan:MY_PLAN,myPlanSaved:MY_PLAN_SAVED,manualDays:[...MANUAL_DAYS],year:YEAR,savedAt:new Date().toISOString()}));}
-function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=data.myPlanSaved||null;MANUAL_DAYS=new Set(data.manualDays||[]);return true;}catch{return false;}}
+const SCHEMA_VERSION=2;
+function saveState(){localStorage.setItem(sKey(YEAR),JSON.stringify({schema:SCHEMA_VERSION,results:serR(RESULTS),calcDone:CALC_DONE,myPlan:MY_PLAN,myPlanSaved:MY_PLAN_SAVED,manualDays:[...MANUAL_DAYS],year:YEAR,savedAt:new Date().toISOString()}));}
+function loadState(){try{const r=localStorage.getItem(sKey(YEAR));if(!r)return false;const data=JSON.parse(r);if(data.year!==YEAR)return false;if(data.schema!==SCHEMA_VERSION)return false;RESULTS=desR(data.results||{});CALC_DONE=data.calcDone||false;MY_PLAN=data.myPlan||{Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=data.myPlanSaved||null;MANUAL_DAYS=new Set(data.manualDays||[]);return true;}catch{return false;}}
 
 /* ── generate ── */
 function generateOptions(cb){
