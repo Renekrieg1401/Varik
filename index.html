@@ -479,6 +479,16 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
       </select>
     </div>
     <div class="field-row">
+      <label class="field-label" for="in-startmonth">Planungsbeginn</label>
+      <div class="field-desc">Ab diesem Monat wird der erste Urlaub geplant — davor werden keine Optionen berechnet.</div>
+      <select class="field" id="in-startmonth" onchange="onStartMonth(this.value)">
+        <option value="1">Januar</option><option value="2">Februar</option><option value="3">März</option>
+        <option value="4">April</option><option value="5">Mai</option><option value="6">Juni</option>
+        <option value="7">Juli</option><option value="8">August</option><option value="9">September</option>
+        <option value="10">Oktober</option><option value="11">November</option><option value="12">Dezember</option>
+      </select>
+    </div>
+    <div class="field-row">
       <label class="field-label" for="in-carry">Resturlaub Vorjahr</label>
       <div class="field-desc">Übertrag addiert (§ 7 BUrlG, max. bis 31.03.).</div>
       <input type="number" class="field" id="in-carry" min="0" max="60" step="1" oninput="onNum('carry',this.value)">
@@ -644,7 +654,7 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 <script>
 /* ══ SETTINGS ══ */
 const SK='irisholiday_settings';
-const DEF={totalDays:36,carryOver:0,specialDays:0,takenDays:0,workModel:'6t',puffer:6,ferienExcl:true,ftExcl:true,samstag:true,bundesland:'HE',name:'',supervisor:'',alts:3,sperrzeiten:[],qTargets:{Q1:12,Q2:6,Q3:12,Q4:6}};
+const DEF={totalDays:36,carryOver:0,specialDays:0,takenDays:0,workModel:'6t',puffer:6,ferienExcl:true,ftExcl:true,samstag:true,bundesland:'HE',name:'',supervisor:'',alts:3,startMonth:1,sperrzeiten:[],qTargets:{Q1:12,Q2:6,Q3:12,Q4:6}};
 let CFG={...DEF,qTargets:{...DEF.qTargets},sperrzeiten:[]};
 let DIRTY=false;
 
@@ -680,6 +690,7 @@ function cntWork(s,e){let n=0,c=new Date(s);while(c<=e){if(isWork(c))n++;c=addD(
 function isBlocked(dt){if(CFG.ftExcl&&FT_SET.has(iso(dt)))return true;if(CFG.ferienExcl)for(const f of SCHULFERIEN)if(dt>=d(f.start)&&dt<=d(f.end))return true;for(const z of CFG.sperrzeiten)if(dt>=d(z.start)&&dt<=d(z.end))return true;return false;}
 function wdBetween(a,b){let n=0,c=addD(a,1);while(c<b){if(isWork(c))n++;c=addD(c,1);}return n;}
 function effTotal(){return Math.max(0,CFG.totalDays+CFG.carryOver+CFG.specialDays-CFG.takenDays);}
+function planFloor(){return new Date(YEAR,CFG.startMonth-1,1);}
 
 /* ── data ── */
 function calcE(y){const a=y%19,b=Math.floor(y/100),c=y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);const g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;const m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,day);}
@@ -702,7 +713,7 @@ function syncUI(){
   sv('in-q1',CFG.qTargets.Q1);sv('in-q2',CFG.qTargets.Q2);sv('in-q3',CFG.qTargets.Q3);sv('in-q4',CFG.qTargets.Q4);
   document.getElementById('tog-ferien').checked=CFG.ferienExcl;document.getElementById('tog-ft').checked=CFG.ftExcl;document.getElementById('tog-sa').checked=CFG.samstag;
   document.getElementById('st-name').value=CFG.name;document.getElementById('st-supervisor').value=CFG.supervisor||'';
-  sv('in-model',CFG.workModel);sv('in-bl',CFG.bundesland);
+  sv('in-model',CFG.workModel);sv('in-bl',CFG.bundesland);sv('in-startmonth',CFG.startMonth);
   updQSum();renderSZList();updQCards();
 }
 function updQSum(){const s=CFG.qTargets.Q1+CFG.qTargets.Q2+CFG.qTargets.Q3+CFG.qTargets.Q4,t=CFG.totalDays;const el=document.getElementById('q-sum');el.textContent=s+' / '+t;el.style.color=s===t?'var(--green-l)':s>t?'#e88':'var(--sun-l)';}
@@ -711,11 +722,12 @@ function onNum(k,val){const map={total:'totalDays',carry:'carryOver',special:'sp
 function onQ(q,val){CFG.qTargets[q]=Math.max(0,Math.min(60,Math.round(Number(val)||0)));updQSum();onDirty();}
 function onModel(v){CFG.workModel=v;CFG.samstag=(v==='6t');document.getElementById('tog-sa').checked=CFG.samstag;onDirty();}
 function onBL(v){CFG.bundesland=v;onDirty();}
+function onStartMonth(v){CFG.startMonth=Math.max(1,Math.min(12,Number(v)||1));onDirty();}
 function onDirty(){DIRTY=true;document.getElementById('set-dot').style.display='block';}
 function renderSZList(){const c=document.getElementById('sperr-list');if(!CFG.sperrzeiten.length){c.innerHTML='<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:3px 0">Keine Sperrzeiten hinterlegt.</div>';return;}c.innerHTML=CFG.sperrzeiten.map((z,i)=>'<div class="sperr-item"><div class="sperr-dot"></div><div class="sperr-text"><strong style="font-size:var(--fs-sm)">'+z.name+'</strong><br><span style="font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-faint)">'+fmt(d(z.start))+' – '+fmt(d(z.end))+'</span></div><button class="sperr-del" onclick="delSZ('+i+')">&#10005;</button></div>').join('');}
 function addSZ(){const nm=document.getElementById('sz-name').value.trim(),fr=document.getElementById('sz-from').value,to=document.getElementById('sz-to').value;if(!nm){showToast('Bezeichnung eingeben');return;}if(!fr||!to){showToast('Datum eingeben');return;}if(fr>to){showToast('Von muss vor Bis liegen');return;}CFG.sperrzeiten.push({name:nm,start:fr,end:to});document.getElementById('sz-name').value='';document.getElementById('sz-from').value='';document.getElementById('sz-to').value='';renderSZList();onDirty();showToast('Sperrzeit hinzugef\xFCgt');}
 function delSZ(i){CFG.sperrzeiten.splice(i,1);renderSZList();onDirty();}
-function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland);showToast('Einstellungen gespeichert ✓');}
+function saveSettings(){CFG.ferienExcl=document.getElementById('tog-ferien').checked;CFG.ftExcl=document.getElementById('tog-ft').checked;CFG.samstag=document.getElementById('tog-sa').checked;CFG.name=document.getElementById('st-name').value.trim();CFG.supervisor=document.getElementById('st-supervisor').value.trim();saveSettingsStorage();DIRTY=false;document.getElementById('set-dot').style.display='none';refreshData(YEAR);updQCards();const tot=effTotal();document.getElementById('kpi-total').textContent=tot;document.getElementById('pb-target').textContent=tot;const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');const MN_FULL=['Januar','Februar','M\xE4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];logAdd('settings','Gespeichert: '+effTotal()+' AT | '+CFG.workModel+' | Puffer '+CFG.puffer+' AT | '+CFG.bundesland+' | Planungsbeginn '+MN_FULL[CFG.startMonth-1]);showToast('Einstellungen gespeichert ✓');}
 
 /* ── main storage ── */
 const sKey=y=>'irisholiday_'+y;
@@ -734,7 +746,8 @@ function generateOptions(){
   setTimeout(()=>{
     logClear();logAdd('info','Engine — '+CFG.bundesland+' '+YEAR+' — '+CFG.workModel+' — Puffer: '+CFG.puffer+' AT');logAdd('info','Kontingent: '+effTotal()+' AT');
     FEIERTAGE.forEach(f=>logAdd('feiertag',fmt(d(f.date))+' — '+f.name));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>logAdd('ferien',fmt(d(f.start))+' – '+fmt(d(f.end))+' — '+f.name));CFG.sperrzeiten.forEach(z=>logAdd('ferien','Sperre: '+z.name));
-    RESULTS={};for(const q of QUARTALS){const c=genC(q.start,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
+    const floor=planFloor();if(CFG.startMonth>1)logAdd('info','Planungsbeginn: '+fmt(floor)+' — Optionen davor werden nicht berechnet');
+    RESULTS={};for(const q of QUARTALS){const qStart=d(q.start)<floor?iso(floor):q.start;const c=genC(qStart,q.end,q.target,CFG.alts);RESULTS[q.id]=c;logAdd('puffer',q.id+': '+c.length+' Opt. (Ziel: '+q.target+' AT)');c.forEach(x=>logAdd('info','  → '+fmt(x.start)+' – '+fmt(x.end)+' ('+x.workdays+' AT)'));}
     CALC_DONE=true;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};document.getElementById('log-badge').textContent='ENGINE OK';logAdd('info','OK ✓');
     saveState();renderAll();btn.classList.remove('loading');document.getElementById('gen-icon').textContent='✓';document.getElementById('gen-txt').textContent='Neu berechnen';
   },480);
