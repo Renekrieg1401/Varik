@@ -744,7 +744,15 @@ const TIER_LABEL=['Lang','Kurz','Flexibel'];
 function blockAt(cur,qEd,len){let p=new Date(cur),col=0;while(col<len&&p<=qEd){if(isWork(p))col++;if(col<len)p=addD(p,1);}if(p>qEd||col<len)return null;if(!hasBuf(cur,p))return null;let x=new Date(cur);while(x<=p){if(isBlocked(x))return null;x=addD(x,1);}return{start:new Date(cur),end:p,workdays:cntWork(cur,p)};}
 function searchExact(qS,qE,len,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}const found=blockAt(cur,qEd,len);if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
 function searchFlexible(qS,qE,capLen,max){const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);let att=0;while(cur<=qEd&&res.length<max){if(++att>800)break;if(!isWork(cur)){cur=addD(cur,1);continue;}let found=null;for(let len=capLen;len>=1;len--){found=blockAt(cur,qEd,len);if(found)break;}if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}}return res;}
-function buildQuarterOptions(q){const longArr=searchExact(q.start,q.end,MAX_BLOCK,1);const shortArr=searchExact(q.start,q.end,SHORT_BLOCK,1);return[longArr[0]||null,shortArr[0]||null,null];}
+function buildQuarterOptions(q){
+  const longArr=searchExact(q.start,q.end,MAX_BLOCK,1);
+  const long0=longArr[0]||null;
+  let shortStart=q.start;
+  if(long0){const afterLong=iso(addD(long0.end,1));if(d(afterLong)<=d(q.end))shortStart=afterLong;}
+  let shortArr=searchExact(shortStart,q.end,SHORT_BLOCK,1);
+  if(!shortArr.length)shortArr=searchExact(q.start,q.end,SHORT_BLOCK,1);
+  return[long0,shortArr[0]||null,null];
+}
 function selectedBlock(qid){const i=MY_PLAN[qid];return(i!==null&&i>=0&&RESULTS[qid]&&RESULTS[qid][i])?RESULTS[qid][i]:null;}
 function gapBounds(qid){
   const idx=QUARTALS.findIndex(q=>q.id===qid);let minStart=null,maxEnd=null;
@@ -766,10 +774,20 @@ function recomputeSmart(){
     const arr=RESULTS[q.id];if(!arr)continue;
     if(!flexible.includes(q.id))continue;
     const{minStart,maxEnd}=gapBounds(q.id);
-    let qS=q.start,qE=q.end;
-    if(minStart&&d(qS)<minStart)qS=iso(minStart);
+    let qE=q.end;
     if(maxEnd&&d(qE)>maxEnd)qE=iso(maxEnd);
-    arr[2]=(each>0&&d(qS)<=d(qE))?(searchFlexible(qS,qE,each,1)[0]||null):null;
+    let afterOthers=null;
+    [arr[0],arr[1]].forEach(o=>{if(o&&(!afterOthers||o.end>afterOthers))afterOthers=o.end;});
+    let preferStart=afterOthers?addD(afterOthers,1):d(q.start);
+    if(minStart&&minStart>preferStart)preferStart=minStart;
+    const qSprefer=preferStart>d(q.start)?iso(preferStart):q.start;
+    let result=(each>0&&d(qSprefer)<=d(qE))?searchFlexible(qSprefer,qE,each,1)[0]:null;
+    if(!result){
+      let qSfallback=q.start;
+      if(minStart&&d(qSfallback)<minStart)qSfallback=iso(minStart);
+      result=(each>0&&d(qSfallback)<=d(qE))?searchFlexible(qSfallback,qE,each,1)[0]:null;
+    }
+    arr[2]=result||null;
   }
 }
 
