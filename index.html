@@ -514,19 +514,19 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <div class="sg-title">Urlaubstage je Quartal</div>
     <div class="field-row">
       <label class="field-label" for="in-q1">Q1 · <span id="q1lbl">Jan – Mär</span></label>
-      <input type="number" class="field" id="in-q1" min="0" max="60" step="1" oninput="onQ('Q1',this.value)">
+      <input type="number" class="field" id="in-q1" min="5" max="60" step="1" onchange="onQ('Q1',this.value)">
     </div>
     <div class="field-row">
       <label class="field-label" for="in-q2">Q2 · <span id="q2lbl">Apr – Jun</span></label>
-      <input type="number" class="field" id="in-q2" min="0" max="60" step="1" oninput="onQ('Q2',this.value)">
+      <input type="number" class="field" id="in-q2" min="5" max="60" step="1" onchange="onQ('Q2',this.value)">
     </div>
     <div class="field-row">
       <label class="field-label" for="in-q3">Q3 · <span id="q3lbl">Jul – Sep</span></label>
-      <input type="number" class="field" id="in-q3" min="0" max="60" step="1" oninput="onQ('Q3',this.value)">
+      <input type="number" class="field" id="in-q3" min="5" max="60" step="1" onchange="onQ('Q3',this.value)">
     </div>
     <div class="field-row">
       <label class="field-label" for="in-q4">Q4 · <span id="q4lbl">Okt – Dez</span></label>
-      <input type="number" class="field" id="in-q4" min="0" max="60" step="1" oninput="onQ('Q4',this.value)">
+      <input type="number" class="field" id="in-q4" min="5" max="60" step="1" onchange="onQ('Q4',this.value)">
     </div>
     <div class="q-sum-row"><span style="font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--text-faint)">Summe:</span><span id="q-sum" style="font-family:var(--font-mono);font-size:var(--fs-body);font-weight:700;color:var(--sun-l)">36 / 36</span></div>
   </div>
@@ -655,8 +655,8 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <label class="field-label" for="ob-month">Erster Urlaub — Monat</label>
     <select class="field" id="ob-month" style="margin-bottom:14px"></select>
     <label class="field-label" for="ob-days">Erster Urlaub — Tage</label>
-    <input type="number" class="field" id="ob-days" min="1" max="12" step="1" style="margin-bottom:4px">
-    <div style="font-size:var(--fs-xs);color:var(--text-faint);margin-bottom:18px">Max. 12 zusammenhängende Tage — mehr Urlaub danach jederzeit manuell in „Mein Plan" dazuplanen.</div>
+    <input type="number" class="field" id="ob-days" min="5" max="12" step="1" style="margin-bottom:4px">
+    <div style="font-size:var(--fs-xs);color:var(--text-faint);margin-bottom:18px">Mind. 5, max. 12 zusammenhängende Tage — mehr Urlaub danach jederzeit manuell in „Mein Plan" dazuplanen.</div>
     <button class="btn-gen" style="margin-bottom:8px" onclick="onboardSubmit()"><span>&#9889;</span> Plan automatisch erstellen</button>
     <button class="mclose" onclick="closeOnboard()">Später</button>
   </div>
@@ -746,16 +746,17 @@ function refreshData(y){
 function hasBuf(uS,uE){const P=CFG.puffer,rng=[];if(CFG.ftExcl)FEIERTAGE.forEach(f=>rng.push({start:d(f.date),end:d(f.date)}));if(CFG.ferienExcl)SCHULFERIEN.forEach(f=>rng.push({start:d(f.start),end:d(f.end)}));CFG.sperrzeiten.forEach(z=>rng.push({start:d(z.start),end:d(z.end)}));for(const{start:bS,end:bE}of rng){if(uS<=bE&&uE>=bS)return false;if(uE<bS&&wdBetween(uE,bS)<P)return false;if(uS>bE&&wdBetween(bE,uS)<P)return false;}return true;}
 const MAX_BLOCK=12;
 function blockAt(cur,qEd,len){let p=new Date(cur),col=0;while(col<len&&p<=qEd){if(isWork(p))col++;if(col<len)p=addD(p,1);}if(p>qEd||col<len)return null;if(!hasBuf(cur,p))return null;let x=new Date(cur);while(x<=p){if(isBlocked(x))return null;x=addD(x,1);}return{start:new Date(cur),end:p,workdays:cntWork(cur,p)};}
+/* Urlaub darf an jedem beliebigen Werktag beginnen -- einziges Verbot: Sonntag
+   (isWork() schließt Sonntag ohnehin immer aus, hier also automatisch erfüllt). */
 function genC(qS,qE,tgt,max){
   const bTgt=Math.min(tgt,MAX_BLOCK);
-  const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);while(cur.getDay()!==1)cur=addD(cur,1);
+  const res=[],qSd=d(qS),qEd=d(qE);let cur=new Date(qSd);
   let att=0;
   while(cur<=qEd&&res.length<max){
-    if(++att>400)break;
-    if(!isWork(cur)){cur=addD(cur,7);continue;}
+    if(++att>800)break;
+    if(!isWork(cur)){cur=addD(cur,1);continue;}
     const found=blockAt(cur,qEd,bTgt);
-    if(found)res.push(found);
-    cur=addD(cur,7);
+    if(found){res.push(found);cur=addD(cur,7);}else{cur=addD(cur,1);}
   }
   return res;
 }
@@ -776,7 +777,7 @@ function updQSum(){const s=CFG.qTargets.Q1+CFG.qTargets.Q2+CFG.qTargets.Q3+CFG.q
 function updQCards(){['Q1','Q2','Q3','Q4'].forEach((q,i)=>{const n=document.getElementById('q'+(i+1)+'n'),b=document.getElementById('q'+(i+1)+'b');if(n)n.textContent=CFG.qTargets[q];if(b)b.textContent=CFG.qTargets[q]+' T';});updQLabels();}
 function updQLabels(){QUARTALS.forEach((q,i)=>{const lbl=qLabel(q);const dd=document.getElementById('q'+(i+1)+'d');if(dd)dd.textContent=lbl;const sl=document.getElementById('q'+(i+1)+'lbl');if(sl)sl.textContent=lbl.replace('–',' – ');});}
 function onNum(k,val){const map={total:'totalDays',carry:'carryOver',special:'specialDays',taken:'takenDays',puffer:'puffer',alts:'alts'};const lim={total:[0,90],carry:[0,60],special:[0,30],taken:[0,90],puffer:[1,20],alts:[1,5]};const prop=map[k],[mn,mx]=lim[k];CFG[prop]=Math.max(mn,Math.min(mx,Math.round(Number(val)||0)));if(k==='total')updQSum();onDirty();}
-function onQ(q,val){CFG.qTargets[q]=Math.max(0,Math.min(60,Math.round(Number(val)||0)));updQSum();onDirty();}
+function onQ(q,val){CFG.qTargets[q]=Math.max(5,Math.min(60,Math.round(Number(val)||0)));const el=document.getElementById('in-'+q.toLowerCase());if(el)el.value=CFG.qTargets[q];updQSum();onDirty();}
 function onModel(v){CFG.workModel=v;CFG.samstag=(v==='6t');document.getElementById('tog-sa').checked=CFG.samstag;onDirty();}
 function onBL(v){CFG.bundesland=v;onDirty();}
 function onStartMonth(v){CFG.startMonth=Math.max(1,Math.min(12,Number(v)||1));onDirty();}
@@ -836,7 +837,7 @@ function autoSelectAndSave(){
 function onboardSubmit(){
   const y=Number(document.getElementById('ob-year').value);
   const m=Number(document.getElementById('ob-month').value);
-  const days=Math.max(1,Math.min(MAX_BLOCK,Math.round(Number(document.getElementById('ob-days').value))||1));
+  const days=Math.max(5,Math.min(MAX_BLOCK,Math.round(Number(document.getElementById('ob-days').value))||5));
   CFG.startMonth=m;CFG.qTargets.Q1=days;saveSettingsStorage();
   closeOnboard();
   setYear(y);
