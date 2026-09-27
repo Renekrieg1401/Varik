@@ -1029,7 +1029,8 @@ function renderSavedPlan(){
         rows+='<div class="sp-row" style="cursor:pointer;touch-action:manipulation;'+(picked?'background:rgba(209,172,0,.14);border-radius:7px':'')+'" onclick="pickComboQuarter(\''+qid+'\',\''+item.id+'\')"><span class="sp-q">'+qid+(picked?' ✓':'')+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';
       }else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
     });
-    html+='<div class="saved-plan card" style="margin-bottom:10px'+(item.isActive?';border-color:var(--sun)':'')+'"><div class="sp-title">✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':'')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
+    const titleAction=item.isActive?'':' onclick="switchVersion(\''+item.id+'\')" style="cursor:pointer;touch-action:manipulation"';
+    html+='<div class="saved-plan card" style="margin-bottom:10px'+(item.isActive?';border-color:var(--sun)':'')+'"><div class="sp-title"'+titleAction+'>✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:var(--fs-xs)">— tippen zum Aktivieren</span>')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
   });
   list.innerHTML=html;
   renderComboBar();
