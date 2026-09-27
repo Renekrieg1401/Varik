@@ -166,22 +166,29 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .qc4 .qdot,.qc4 .q-num{color:var(--lime)}.qc4 .qdot{background:var(--lime)}.qc4 .qbf{background:var(--lime)}
 
 /* ── BUTTONS — Hauptaktion Neon-Grün ── */
-/* ── GLOW BORDER (gradientmagic-Vorbild) — überdimensioniertes ::before
-   hinter der Fläche (z-index:-1), dadurch nur am Rand sichtbar, kein
-   Regenbogen sondern unsere Marken-Farben (Neon-Grün → Gold) ── */
-.btn-gen,.btn-save,.btn-approve-big,.opt-row.sel,.glow-ring{position:relative}
-.btn-gen::before,.btn-save::before,.btn-approve-big::before,.opt-row.sel::before,.glow-ring::before{
-  content:'';position:absolute;top:-3px;left:-3px;z-index:-1;
-  width:calc(100% + 6px);height:calc(100% + 6px);
-  border-radius:inherit;
-  background:linear-gradient(60deg,var(--violet),var(--sun));
-  box-shadow:0 0 14px 1px rgba(182,255,25,.45)}
+/* ── GLOW BORDER (gradientmagic-Vorbild, unsere Farben) — echter
+   Rahmen via background-clip-Doppelschicht (padding-box Füllfarbe +
+   border-box Verlauf). Bewusst NICHT die z-index:-1-Variante: bei
+   Karten mit backdrop-filter (Glaseffekt) blitzt der dahinterliegende
+   Verlauf durch den Blur als Vollflächen-Wash statt am Rand zu bleiben
+   — diese Technik malt den Verlauf direkt als Teil der eigenen Fläche,
+   kann also nicht "durchscheinen" ── */
+.btn-gen,.btn-save,.btn-approve-big{
+  border:3px solid transparent;background-clip:padding-box,border-box;
+  background-image:linear-gradient(var(--violet),var(--violet)),linear-gradient(60deg,var(--violet),var(--sun));
+  background-origin:border-box}
+.opt-row.sel{
+  border:3px solid transparent;background-clip:padding-box,border-box;
+  background-image:linear-gradient(rgba(209,172,0,.14),rgba(209,172,0,.14)),linear-gradient(60deg,var(--violet),var(--sun));
+  background-origin:border-box}
+.glow-ring{
+  border:3px solid transparent;background-clip:padding-box,border-box;
+  background-image:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),linear-gradient(60deg,var(--violet),var(--sun));
+  background-origin:border-box}
 .tb.active{position:relative}
 .tb.active::before{content:'';position:absolute;inset:3px 5px;z-index:-1;border-radius:12px;
-  background:linear-gradient(60deg,var(--violet),var(--sun));
-  box-shadow:0 0 10px 1px rgba(182,255,25,.45)}
+  background:linear-gradient(60deg,var(--violet),var(--sun))}
 .btn-gen{width:100%;padding:16px;
-  background:var(--violet);border:none;
   color:#0A0A0A;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;margin-bottom:10px;min-height:52px;
@@ -241,17 +248,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   touch-action:manipulation;min-height:52px}
 .opt-row:last-child{margin-bottom:0}
 .opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08);
-  background:linear-gradient(rgba(209,172,0,.14),rgba(209,172,0,.14)),var(--primary-dark);
   position:relative;overflow:visible}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
-.glow-ring{overflow:visible;background:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),var(--primary-dark)}
+.glow-ring{overflow:visible}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
 .opt-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.opt-days{font-family:var(--font-mono);font-size:var(--fs-h3);font-weight:800;color:var(--sun-l);white-space:nowrap}
 .none-row .opt-dates{color:var(--text-faint)}.none-row{border-style:dashed}
 .btn-save{width:100%;padding:16px;position:relative;color:#0A0A0A;border-radius:var(--r);
-  background:var(--violet);border:none;
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;
   margin-top:16px;margin-bottom:7px;min-height:52px;
@@ -320,7 +325,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .stamp.approved{color:var(--green-l);border-color:var(--green-l)}
 
 .btn-approve-big{width:100%;padding:19px;position:relative;color:#0A0A0A;border-radius:var(--r);
-  background:var(--violet);border:none;
   font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:800;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:11px;transition:transform .1s,box-shadow .2s;
   margin-bottom:10px;min-height:56px;letter-spacing:.01em;
