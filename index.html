@@ -117,11 +117,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex-shrink:0}
 .tb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
 .tb.active{color:var(--mint)}
-.tb.active::before{content:'';position:absolute;inset:4px 6px;border-radius:12px;
-  border:2px solid transparent;background:
-    linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--mint) 10%,#fff 18%,transparent 32%) border-box;
-  animation:ringSpin 3s linear infinite;pointer-events:none}
 .tline{position:absolute;top:0;left:0;height:2px;background:var(--mint);border-radius:0 0 3px 3px;
   transition:left .22s cubic-bezier(.4,0,.2,1),width .22s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .tab-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);
@@ -157,11 +152,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* ── Q CARDS ── */
 .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.q-card{padding:12px 14px 10px;
-  border:2px solid transparent;background:
-    linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--mint) 8%,#fff 16%,transparent 30%) border-box;
-  animation:ringSpin 4s linear infinite}
+.q-card{padding:12px 14px 10px}
 .q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .q-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;gap:5px}
 .qdot{width:8px;height:8px;border-radius:50%}
@@ -174,13 +165,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .qc3 .qdot,.qc3 .q-num{color:var(--mint)}.qc3 .qdot{background:var(--mint)}.qc3 .qbf{background:var(--mint)}
 .qc4 .qdot,.qc4 .q-num{color:var(--lime)}.qc4 .qdot{background:var(--lime)}.qc4 .qbf{background:var(--lime)}
 
-/* ── BUTTONS — Hauptaktion Neon-Grün + umlaufende Lichtpunkte
-   (Galaxy-Orbit-Effekt: rotierender Sternenkranz statt Rahmen) ── */
+/* ── BUTTONS — Hauptaktion Neon-Grün ── */
 .btn-gen{width:100%;padding:16px;position:relative;
-  border:2px solid transparent;background:
-    linear-gradient(var(--violet),var(--violet)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
-  animation:ringSpin 3s linear infinite;
+  background:var(--violet);border:none;
   color:#0A0A0A;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;margin-bottom:10px;min-height:52px;
@@ -193,12 +180,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     0.025em 0.05em 0.1em 0 inset rgba(255,255,255,.9),
     0.12em 0.12em 0.12em inset rgba(255,255,255,.22),
     -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
-/* ── BORDER-LICHTKANTE — echter Rahmen-Effekt (kein Flächen-Glow):
-   padding-box Füllfarbe + border-box conic-gradient, Rotationswinkel
-   per @property animiert. Bereits einmal verifiziert robust (kein
-   Masken-Ausrichtungs-Bug, da die Box selbst nicht rotiert) ── */
-@property --ring-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
-@keyframes ringSpin{to{--ring-angle:360deg}}
 /* ── REFRACT — Iridescent-Verlauf-Schatten (Simey-Vorbild), pulsierender
    farbverschiebender Blur-Halo statt hover-getriggert (kein Hover auf
    Touch) ── */
@@ -245,16 +226,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   box-shadow:4px 4px 10px rgba(6,1,14,.5),-3px -3px 8px rgba(182,255,25,.08);
   touch-action:manipulation;min-height:52px}
 .opt-row:last-child{margin-bottom:0}
-/* ── GALAXY-ORBIT für ausgewählte/aktive Kacheln + Tabs — rotierender
-   Sternenkranz (Box-Shadow-Konstellation) statt Rahmen/Verlauf. Rotiert
-   als starre Punktwolke um die Mitte, daher unabhängig von der Kachel-
-   form robust (kein Masken-Ausrichtungs-Bug wie beim Rahmen-Ansatz) ── */
-.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08);
-  position:relative;overflow:hidden;
-  border:2px solid transparent;background:
-    linear-gradient(rgba(209,172,0,.1),rgba(209,172,0,.1)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 8%,var(--sun-l) 16%,transparent 30%) border-box;
-  animation:ringSpin 3s linear infinite}
+.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 1.5px var(--sun);
+  background:rgba(209,172,0,.1);position:relative;overflow:hidden}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
 /* ── SHINE-SWEEP (Uiverse "Wild West Button", auf unser Farbschema
    übertragen) — laufendes Glanzband über ausgewählte Quartalseinträge ── */
@@ -262,20 +235,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
   background-size:200% 100%;animation:optShine 3s linear infinite}
 @keyframes optShine{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
-.glow-ring{border:2px solid transparent;background:
-    linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 8%,var(--sun-l) 16%,transparent 30%) border-box;
-  animation:ringSpin 3s linear infinite}
+.glow-ring{border-color:var(--sun)}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
 .opt-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.opt-days{font-family:var(--font-mono);font-size:var(--fs-h3);font-weight:800;color:var(--sun-l);white-space:nowrap}
 .none-row .opt-dates{color:var(--text-faint)}.none-row{border-style:dashed}
 .btn-save{width:100%;padding:16px;position:relative;color:#0A0A0A;border-radius:var(--r);
-  border:2px solid transparent;background:
-    linear-gradient(var(--violet),var(--violet)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
-  animation:ringSpin 3s linear infinite;
+  background:var(--violet);border:none;
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;
   margin-top:16px;margin-bottom:7px;min-height:52px;
@@ -344,10 +311,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .stamp.approved{color:var(--green-l);border-color:var(--green-l)}
 
 .btn-approve-big{width:100%;padding:19px;position:relative;color:#0A0A0A;border-radius:var(--r);
-  border:2px solid transparent;background:
-    linear-gradient(var(--violet),var(--violet)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
-  animation:ringSpin 3s linear infinite;
+  background:var(--violet);border:none;
   font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:800;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:11px;transition:transform .1s,box-shadow .2s;
   margin-bottom:10px;min-height:56px;letter-spacing:.01em;
