@@ -165,13 +165,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .qc3 .qdot,.qc3 .q-num{color:var(--mint)}.qc3 .qdot{background:var(--mint)}.qc3 .qbf{background:var(--mint)}
 .qc4 .qdot,.qc4 .q-num{color:var(--lime)}.qc4 .qdot{background:var(--lime)}.qc4 .qbf{background:var(--lime)}
 
-/* ── BUTTONS — Hauptaktion Neon-Grün, wandernder Lichtstreifen +
-   umlaufende weiße Lichtkante am Rand (echter rotierender Rahmen) ── */
+/* ── BUTTONS — Hauptaktion Neon-Grün, wandernder Lichtstreifen ── */
 .btn-gen{width:100%;padding:16px;position:relative;overflow:hidden;
-  border:2px solid transparent;background:
-    linear-gradient(var(--violet),var(--violet)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
-  animation:ringSpin 2.4s linear infinite;
+  background:var(--violet);border:none;
   color:#0A0A0A;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;margin-bottom:10px;min-height:52px;
@@ -209,21 +205,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   box-shadow:4px 4px 10px rgba(6,1,14,.5),-3px -3px 8px rgba(182,255,25,.08);
   touch-action:manipulation;min-height:52px}
 .opt-row:last-child{margin-bottom:0}
-.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08)}
+.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 2px var(--sun);background:rgba(209,172,0,.1)}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
-/* ── UMLAUFENDE LICHTKANTE für ausgewählte/aktive Kacheln + Button —
-   echter rotierender Rahmen via background-clip-Doppelschicht (robust,
-   nicht der fehlerhafte mask-composite-Trick von vorher) ── */
-@property --ring-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
-@keyframes ringSpin{to{--ring-angle:360deg}}
-.opt-row.sel{border:2px solid transparent;background:
-    linear-gradient(rgba(209,172,0,.14),rgba(209,172,0,.14)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 10%,var(--sun-l) 18%,transparent 32%) border-box;
-  animation:ringSpin 2.4s linear infinite}
-.glow-ring{border:2px solid transparent;background:
-    linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)) padding-box,
-    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 10%,var(--sun-l) 18%,transparent 32%) border-box;
-  animation:ringSpin 2.4s linear infinite}
+.glow-ring{border-color:var(--sun)}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
