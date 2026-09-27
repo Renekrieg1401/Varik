@@ -419,6 +419,7 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <button class="btn-sec" onclick="openOnboard()" style="margin-bottom:8px">&#8635; Setup-Assistent erneut öffnen</button>
   <button class="btn-sec" onclick="resetAll()">&#10060; Reset (aktive Planung löschen)</button>
   <div id="dash-res"><div class="empty"><div class="ei">&#9672;</div>Optionen berechnen, dann hier auswählen</div></div>
+  <button class="btn-save" id="save-btn-dash" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
 </div>
 
 <!-- MEIN PLAN -->
@@ -963,7 +964,9 @@ function renderPlanSels(){
 function updPlanBudget(){
   const tot=effTotal(),used=planBudget(),pct=Math.min(Math.round(used/tot*100),100);
   document.getElementById('pb-used').textContent=used;document.getElementById('pb-rest').textContent=Math.max(tot-used,0);document.getElementById('pb-target').textContent=tot;document.getElementById('p-bar').style.width=pct+'%';document.getElementById('plan-badge').textContent=used+' AT';document.getElementById('plan-yr').textContent=YEAR;
-  document.getElementById('save-btn').disabled=!Object.values(MY_PLAN).some(v=>v!==null);
+  const hasSel=Object.values(MY_PLAN).some(v=>v!==null);
+  document.getElementById('save-btn').disabled=!hasSel;
+  const sbd=document.getElementById('save-btn-dash');if(sbd)sbd.disabled=!hasSel;
   document.getElementById('p-bar').style.background=used>tot?'#e88':used===tot?'var(--green-l)':'linear-gradient(90deg,var(--mint),var(--sun))';
 }
 function planDirty(){
