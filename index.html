@@ -183,9 +183,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
 /* ── SPARK — rotierender Lichtblitz (jh3y-Vorbild), Conic-Gradient-Keil
    der als Flip alle paar Sekunden über den Rand läuft ── */
-.btn-gen .spark{position:absolute;inset:0;border-radius:inherit;overflow:hidden;
+.btn-gen .spark,.btn-save .spark,.btn-approve-big .spark,.q-card .spark,.opt-row.sel .spark{position:absolute;inset:0;border-radius:inherit;overflow:hidden;
   mask:linear-gradient(#fff,transparent 60%);pointer-events:none;animation:sparkFlip 3.6s infinite steps(2,end)}
-.btn-gen .spark::before{content:'';position:absolute;width:200%;aspect-ratio:1;top:0;left:50%;z-index:1;
+.btn-gen .spark::before,.btn-save .spark::before,.btn-approve-big .spark::before,.q-card .spark::before,.opt-row.sel .spark::before{content:'';position:absolute;width:200%;aspect-ratio:1;top:0;left:50%;z-index:1;
   translate:-50% -15%;transform:rotate(-90deg);opacity:.7;
   background:conic-gradient(from 0deg,transparent 0 340deg,#fff 360deg);
   animation:sparkRotate 1.8s linear infinite}
@@ -194,11 +194,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 /* ── REFRACT — Iridescent-Verlauf-Schatten (Simey-Vorbild), pulsierender
    farbverschiebender Blur-Halo statt hover-getriggert (kein Hover auf
    Touch) ── */
-.btn-gen .drop-shadow{position:absolute;inset:-14px;z-index:-1;border-radius:inherit;pointer-events:none}
-.btn-gen .drop-shadow::before{content:'';position:absolute;inset:0;border-radius:inherit;
+.btn-gen .drop-shadow,.btn-save .drop-shadow,.btn-approve-big .drop-shadow{position:absolute;inset:-14px;z-index:-1;border-radius:inherit;pointer-events:none}
+.btn-gen .drop-shadow::before,.btn-save .drop-shadow::before,.btn-approve-big .drop-shadow::before{content:'';position:absolute;inset:0;border-radius:inherit;
   background:linear-gradient(98deg in oklab,oklch(0.8 0.1348 355.91) -5%,oklch(0.8 0.2 280),oklch(0.98 0.22 200) 160%);
   filter:blur(14px) saturate(160%);opacity:.55;animation:iriPulse 5s ease-in-out infinite}
-.btn-gen .drop-shadow::after{content:'';position:absolute;inset:0;border-radius:inherit;
+.btn-gen .drop-shadow::after,.btn-save .drop-shadow::after,.btn-approve-big .drop-shadow::after{content:'';position:absolute;inset:0;border-radius:inherit;
   background:radial-gradient(closest-side,oklch(0.9 0.15 140),transparent 70%);
   filter:blur(18px);opacity:.4;translate:6% 40%;animation:iriPulse 5s ease-in-out infinite reverse}
 @keyframes iriPulse{0%,100%{opacity:.35}50%{opacity:.65}}
@@ -256,11 +256,24 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
 .opt-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.opt-days{font-family:var(--font-mono);font-size:var(--fs-h3);font-weight:800;color:var(--sun-l);white-space:nowrap}
 .none-row .opt-dates{color:var(--text-faint)}.none-row{border-style:dashed}
-.btn-save{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
+.btn-save{width:100%;padding:16px;position:relative;background:var(--violet);color:#0A0A0A;border:none;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:9px;transition:background .15s,transform .1s;
-  margin-top:16px;margin-bottom:7px;min-height:52px}
-.btn-save:active{background:var(--green-l);transform:scale(.98)}.btn-save:disabled{opacity:.4;pointer-events:none}
+  display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;
+  margin-top:16px;margin-bottom:7px;min-height:52px;
+  box-shadow:0 0 22px rgba(182,255,25,.28),8px 8px 18px rgba(0,0,0,.5),-6px -6px 14px rgba(182,255,25,.1),
+    -0.05em -0.05em 0.05em 0 inset rgba(0,0,0,.35),
+    0 0 0.05em 0.2em inset rgba(255,255,255,.2),
+    0.025em 0.05em 0.1em 0 inset rgba(255,255,255,.9),
+    0.12em 0.12em 0.12em inset rgba(255,255,255,.22),
+    -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
+.btn-save:active{transform:scale(.98);box-shadow:inset 5px 5px 12px rgba(0,0,0,.3),inset -4px -4px 10px rgba(255,255,255,.2),
+    0.1em 0.15em 0.05em 0 inset rgba(0,0,0,.65),
+    -0.025em -0.03em 0.05em 0.025em inset rgba(0,0,0,.45),
+    0.25em 0.25em 0.2em 0 inset rgba(0,0,0,.45),
+    0 0 0.05em 0.5em inset rgba(255,255,255,.12),
+    0.12em 0.12em 0.12em inset rgba(255,255,255,.2),
+    -0.075em -0.12em 0.2em 0.1em inset rgba(0,0,0,.22)}
+.btn-save:disabled{opacity:.4;pointer-events:none}
 .saved-plan{padding:13px 15px;margin-bottom:10px}
 .sp-title{font-size:var(--fs-body);font-weight:700;color:var(--green-l);display:flex;align-items:center;gap:6px;margin-bottom:9px}
 .sp-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)}
@@ -311,11 +324,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   padding:4px 10px;border-radius:5px;border:2px solid;pointer-events:none;opacity:.9}
 .stamp.approved{color:var(--green-l);border-color:var(--green-l)}
 
-.btn-approve-big{width:100%;padding:19px;background:var(--green);color:#fff;border:none;border-radius:var(--r);
+.btn-approve-big{width:100%;padding:19px;position:relative;background:var(--violet);color:#0A0A0A;border:none;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:800;cursor:pointer;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;gap:11px;transition:background .15s,transform .1s;
-  margin-bottom:10px;min-height:56px;letter-spacing:.01em}
-.btn-approve-big:active{background:var(--green-l);transform:scale(.97)}
+  display:flex;align-items:center;justify-content:center;gap:11px;transition:transform .1s,box-shadow .2s;
+  margin-bottom:10px;min-height:56px;letter-spacing:.01em;
+  box-shadow:0 0 22px rgba(182,255,25,.28),8px 8px 18px rgba(0,0,0,.5),-6px -6px 14px rgba(182,255,25,.1),
+    -0.05em -0.05em 0.05em 0 inset rgba(0,0,0,.35),
+    0 0 0.05em 0.2em inset rgba(255,255,255,.2),
+    0.025em 0.05em 0.1em 0 inset rgba(255,255,255,.9),
+    0.12em 0.12em 0.12em inset rgba(255,255,255,.22),
+    -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
+.btn-approve-big:active{transform:scale(.97);box-shadow:inset 5px 5px 12px rgba(0,0,0,.3),inset -4px -4px 10px rgba(255,255,255,.2),
+    0.1em 0.15em 0.05em 0 inset rgba(0,0,0,.65),
+    -0.025em -0.03em 0.05em 0.025em inset rgba(0,0,0,.45),
+    0.25em 0.25em 0.2em 0 inset rgba(0,0,0,.45),
+    0 0 0.05em 0.5em inset rgba(255,255,255,.12),
+    0.12em 0.12em 0.12em inset rgba(255,255,255,.2),
+    -0.075em -0.12em 0.2em 0.1em inset rgba(0,0,0,.22)}
 .btn-approve-big:disabled{opacity:.4;pointer-events:none}
 .appr-hint{font-size:var(--fs-sm);color:var(--text-faint);text-align:center;margin-bottom:16px;line-height:1.5}
 
@@ -1016,7 +1041,7 @@ function renderOptionRows(q){
   if(!opts.length)return'<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';
   let html='';
   opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
-    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
+    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')">'+(isSel?'<span class="spark"></span>':'')+'<div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
   });
   html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
   return html;
@@ -1219,7 +1244,7 @@ function renderApprView(){
     +'</div>'
 
     +(!isApproved
-      ? '<button class="btn-approve-big" onclick="approveNow()">&#10004; Jetzt genehmigen</button>'
+      ? '<button class="btn-approve-big" onclick="approveNow()"><span class="drop-shadow"></span><span class="spark"></span>&#10004; Jetzt genehmigen</button>'
         +'<div class="appr-hint">Nicht genehmigen = gilt als abgelehnt</div>'
       : '<button class="btn-revoke" onclick="resetApproval()">&#8635; Genehmigung zurücksetzen</button>'
     )
@@ -1322,8 +1347,9 @@ let tT=null;function showToast(msg){const t=document.getElementById('toast');t.t
 (function(){
   checkAR();loadSettings();refreshData(YEAR);ensureVersions(YEAR);
   loadForActiveVersion();syncUI();
-  document.querySelectorAll('.btn-gen').forEach(b=>b.insertAdjacentHTML('beforeend',
+  document.querySelectorAll('.btn-gen,.btn-save,.btn-approve-big').forEach(b=>b.insertAdjacentHTML('beforeend',
     '<span class="drop-shadow"></span><span class="spark"></span>'));
+  document.querySelectorAll('.q-card').forEach(b=>b.insertAdjacentHTML('beforeend','<span class="spark"></span>'));
   const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};
   document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');
   const bar=document.getElementById('tabbar'),w=bar.offsetWidth/6;
