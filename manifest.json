@@ -3,8 +3,8 @@
   "short_name": "IRIS Holiday",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#17273F",
-  "theme_color": "#2B4570",
+  "background_color": "#1B0A30",
+  "theme_color": "#3E1D63",
   "icons": [
     {
       "src": "icons/icon-192.png",
