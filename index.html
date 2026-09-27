@@ -806,11 +806,14 @@ const versKey=y=>'irisholiday_versionlist_'+y;
 function loadVersionList(y){try{const r=JSON.parse(localStorage.getItem(versKey(y)));return(Array.isArray(r)&&r.length)?r:null;}catch{return null;}}
 function saveVersionList(y,list){localStorage.setItem(versKey(y),JSON.stringify(list));}
 function newVid(){return'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+const activeVerKey=y=>'irisholiday_activever_'+y;
+function saveActiveVersion(y){localStorage.setItem(activeVerKey(y),ACTIVE_VERSION);}
 function ensureVersions(y){
   let list=loadVersionList(y);
   if(!list){const vid=newVid();list=[{id:vid,name:'Planung 1'}];saveVersionList(y,list);}
   PLAN_VERSIONS=list;
-  if(!ACTIVE_VERSION||!list.some(v=>v.id===ACTIVE_VERSION))ACTIVE_VERSION=list[0].id;
+  const saved=localStorage.getItem(activeVerKey(y));
+  ACTIVE_VERSION=(saved&&list.some(v=>v.id===saved))?saved:list[0].id;
 }
 function updateVersionPill(){
   const el=document.getElementById('ver-pill');if(!el)return;
@@ -838,7 +841,7 @@ function openVersionModal(){
 }
 function closeVersionModal(e){if(!e||e.target===document.getElementById('version-modal'))document.getElementById('version-modal').classList.remove('open');}
 function switchVersion(vid){
-  if(vid!==ACTIVE_VERSION){ACTIVE_VERSION=vid;loadForActiveVersion();renderAll();updateVersionPill();}
+  if(vid!==ACTIVE_VERSION){ACTIVE_VERSION=vid;saveActiveVersion(YEAR);loadForActiveVersion();renderAll();updateVersionPill();}
   closeVersionModal();
 }
 function createVersion(){
@@ -847,7 +850,7 @@ function createVersion(){
   const vid=newVid();
   PLAN_VERSIONS.push({id:vid,name});
   saveVersionList(YEAR,PLAN_VERSIONS);
-  ACTIVE_VERSION=vid;
+  ACTIVE_VERSION=vid;saveActiveVersion(YEAR);
   RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MY_PLAN_SAVED=null;MANUAL_DAYS=new Set();
   APPR={status:null,approvedAt:null,approver:'',history:[]};
   saveState();saveAppr();
@@ -861,14 +864,14 @@ function deleteVersion(vid){
   localStorage.removeItem(sKeyFor(YEAR,vid));localStorage.removeItem(akFor(YEAR,vid));
   PLAN_VERSIONS=PLAN_VERSIONS.filter(v=>v.id!==vid);
   saveVersionList(YEAR,PLAN_VERSIONS);
-  if(ACTIVE_VERSION===vid){ACTIVE_VERSION=PLAN_VERSIONS[0].id;loadForActiveVersion();renderAll();updateVersionPill();}
+  if(ACTIVE_VERSION===vid){ACTIVE_VERSION=PLAN_VERSIONS[0].id;saveActiveVersion(YEAR);loadForActiveVersion();renderAll();updateVersionPill();}
   openVersionModal();
 }
 function sKeyFor(y,vid){return'irisholiday_'+y+'_'+vid;}
 function akFor(y,vid){return'irisholiday_appr_'+y+'_'+vid;}
 function getMeta(){try{return JSON.parse(localStorage.getItem('irisholiday_meta'))||{};}catch{return{};}}
 function saveMeta(o){localStorage.setItem('irisholiday_meta',JSON.stringify(o));}
-function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){const py=t.getFullYear()-1;(loadVersionList(py)||[]).forEach(v=>{localStorage.removeItem(sKeyFor(py,v.id));localStorage.removeItem(akFor(py,v.id));});localStorage.removeItem(versKey(py));m[k]=true;saveMeta(m);}}
+function checkAR(){const m=getMeta(),t=new Date(),k='rd_'+t.getFullYear();if(t.getMonth()===0&&t.getDate()===1&&!m[k]){const py=t.getFullYear()-1;(loadVersionList(py)||[]).forEach(v=>{localStorage.removeItem(sKeyFor(py,v.id));localStorage.removeItem(akFor(py,v.id));});localStorage.removeItem(versKey(py));localStorage.removeItem(activeVerKey(py));m[k]=true;saveMeta(m);}}
 function serR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:iso(x.start),end:iso(x.end)}:null);return o;}
 function desR(r){const o={};for(const[k,a]of Object.entries(r))o[k]=a.map(x=>x?{...x,start:d(x.start),end:d(x.end)}:null);return o;}
 const SCHEMA_VERSION=4;
