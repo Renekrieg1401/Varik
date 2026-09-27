@@ -436,11 +436,11 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   </div>
   <div id="plan-no-calc" style="display:none"><div class="empty"><div class="ei">&#9647;</div>Zuerst im Board Optionen berechnen und auswählen</div></div>
   <div id="plan-sels"></div>
-  <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div id="saved-wrap" style="display:none">
     <div class="sh"><div class="sh-t">Gespeicherte Planungen</div></div>
     <div id="saved-card-list"></div>
   </div>
+  <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div class="sh"><div class="sh-t">Manuell geplante Tage</div><span class="badge bg" id="manual-badge">0 AT</span></div>
   <div id="manual-days-list"></div>
 </div>
@@ -993,6 +993,7 @@ function saveMyPlan(){
   saveState();renderSavedPlan();updateKPIs();renderCalendar();renderApprView();updateKPIsAppr();
   document.getElementById('plan-status').textContent='GESPEICHERT';document.getElementById('plan-status').className='badge bgg';
   showToast('Plan gespeichert – Genehmigung ausstehend');
+  switchTab('appr',3);
 }
 function getAllSavedPlans(y){
   const out=[];
@@ -1009,7 +1010,7 @@ function getAllSavedPlans(y){
 function renderSavedPlan(){
   const wrap=document.getElementById('saved-wrap'),list=document.getElementById('saved-card-list');
   const all=getAllSavedPlans(YEAR);
-  if(!all.length){wrap.style.display='none';return;}
+  if(!all.length){wrap.style.display='none';list.innerHTML='';return;}
   wrap.style.display='block';
   const ids=['Q1','Q2','Q3','Q4'],nm=CFG.name?' \xB7 '+CFG.name:'';
   let html='';
