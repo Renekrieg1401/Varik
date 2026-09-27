@@ -438,7 +438,11 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <div id="plan-sels"></div>
   <div id="saved-wrap" style="display:none">
     <div class="sh"><div class="sh-t">Gespeicherte Planungen</div></div>
+    <div class="info-box" style="margin-bottom:10px">Auf ein Quartal in einer gespeicherten Planung tippen, um es für eine eigene Kombination zu übernehmen.</div>
     <div id="saved-card-list"></div>
+    <div class="sh"><div class="sh-t">Meine Kombination</div></div>
+    <div id="combo-summary"></div>
+    <button class="btn-add-sz" style="width:100%;margin-bottom:12px" id="combo-save-btn" onclick="saveCombo()" disabled>+ Kombination als neue Planung speichern</button>
   </div>
   <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div class="sh"><div class="sh-t">Manuell geplante Tage</div><span class="badge bg" id="manual-badge">0 AT</span></div>
@@ -712,6 +716,7 @@ let FEIERTAGE=[],SCHULFERIEN=[],FT_SET=new Set(),QUARTALS=[];
 let RESULTS={},CALC_DONE=false;
 let MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null},MY_PLAN_SAVED=null;
 let MANUAL_DAYS=new Set();
+let COMBO_PICK={Q1:null,Q2:null,Q3:null,Q4:null};
 
 /* ── date utils ── */
 const d=s=>new Date(s+'T00:00:00');
@@ -1018,12 +1023,55 @@ function renderSavedPlan(){
     let total=0,rows='';
     ids.forEach(qid=>{
       const o=item.plan[qid];
-      if(o){total+=o.workdays;rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}
-      else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
+      const picked=COMBO_PICK[qid]&&COMBO_PICK[qid].vid===item.id;
+      if(o){
+        total+=o.workdays;
+        rows+='<div class="sp-row" style="cursor:pointer;touch-action:manipulation;'+(picked?'background:rgba(209,172,0,.14);border-radius:7px':'')+'" onclick="pickComboQuarter(\''+qid+'\',\''+item.id+'\')"><span class="sp-q">'+qid+(picked?' ✓':'')+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';
+      }else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
     });
     html+='<div class="saved-plan card" style="margin-bottom:10px'+(item.isActive?';border-color:var(--sun)':'')+'"><div class="sp-title">✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':'')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
   });
   list.innerHTML=html;
+  renderComboBar();
+}
+function pickComboQuarter(qid,vid){
+  const item=getAllSavedPlans(YEAR).find(p=>p.id===vid);
+  if(!item)return;
+  const o=item.plan[qid];if(!o)return;
+  const cur=COMBO_PICK[qid];
+  COMBO_PICK[qid]=(cur&&cur.vid===vid)?null:{vid,vname:item.name,data:o};
+  renderSavedPlan();
+}
+function renderComboBar(){
+  const el=document.getElementById('combo-summary');if(!el)return;
+  const ids=['Q1','Q2','Q3','Q4'];let any=false,html='<div class="card" style="padding:4px 0">';
+  ids.forEach(qid=>{
+    const p=COMBO_PICK[qid];
+    if(p){any=true;html+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-date">'+fmt(p.data.start)+' – '+fmt(p.data.end)+' <span style="color:var(--text-faint)">('+p.vname+')</span></span><span class="sp-days">'+p.data.workdays+' AT</span></div>';}
+    else html+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Nicht ausgew\xE4hlt</span><span class="sp-days" style="color:var(--text-faint)">–</span></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+  const btn=document.getElementById('combo-save-btn');if(btn)btn.disabled=!any;
+}
+function saveCombo(){
+  const ids=['Q1','Q2','Q3','Q4'];
+  if(!ids.some(q=>COMBO_PICK[q]))return;
+  const comboCount=PLAN_VERSIONS.filter(v=>v.name.indexOf('Kombination')===0).length+1;
+  const name='Kombination '+comboCount;
+  const vid=newVid();
+  PLAN_VERSIONS.push({id:vid,name});
+  saveVersionList(YEAR,PLAN_VERSIONS);
+  ACTIVE_VERSION=vid;saveActiveVersion(YEAR);
+  RESULTS={};CALC_DONE=false;MY_PLAN={Q1:null,Q2:null,Q3:null,Q4:null};MANUAL_DAYS=new Set();
+  MY_PLAN_SAVED={};
+  ids.forEach(qid=>{const p=COMBO_PICK[qid];MY_PLAN_SAVED[qid]=p?{start:new Date(p.data.start),end:new Date(p.data.end),workdays:p.data.workdays}:null;});
+  APPR={status:'pending',approvedAt:null,approver:'',history:[]};
+  saveState();saveAppr();
+  COMBO_PICK={Q1:null,Q2:null,Q3:null,Q4:null};
+  refreshData(YEAR);renderAll();updateVersionPill();
+  showToast('„'+name+'“ gespeichert – Genehmigung ausstehend');
+  switchTab('appr',3);
 }
 
 /* ══════════════════════════════════════════
