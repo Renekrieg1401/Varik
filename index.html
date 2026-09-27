@@ -117,6 +117,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex-shrink:0}
 .tb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
 .tb.active{color:var(--mint)}
+.tb.active::before{content:'';position:absolute;inset:4px 6px;border-radius:12px;
+  border:2px solid transparent;background:
+    linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,var(--mint) 10%,#fff 18%,transparent 32%) border-box;
+  animation:ringSpin 3s linear infinite;pointer-events:none}
 .tline{position:absolute;top:0;left:0;height:2px;background:var(--mint);border-radius:0 0 3px 3px;
   transition:left .22s cubic-bezier(.4,0,.2,1),width .22s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .tab-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);
@@ -152,7 +157,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* ── Q CARDS ── */
 .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.q-card{padding:12px 14px 10px}
+.q-card{padding:12px 14px 10px;
+  border:2px solid transparent;background:
+    linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,var(--mint) 8%,#fff 16%,transparent 30%) border-box;
+  animation:ringSpin 4s linear infinite}
 .q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .q-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;gap:5px}
 .qdot{width:8px;height:8px;border-radius:50%}
@@ -168,7 +177,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 /* ── BUTTONS — Hauptaktion Neon-Grün + umlaufende Lichtpunkte
    (Galaxy-Orbit-Effekt: rotierender Sternenkranz statt Rahmen) ── */
 .btn-gen{width:100%;padding:16px;position:relative;
-  background:var(--violet);border:none;
+  border:2px solid transparent;background:
+    linear-gradient(var(--violet),var(--violet)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
+  animation:ringSpin 3s linear infinite;
   color:#0A0A0A;border-radius:var(--r);
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;margin-bottom:10px;min-height:52px;
@@ -181,16 +193,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     0.025em 0.05em 0.1em 0 inset rgba(255,255,255,.9),
     0.12em 0.12em 0.12em inset rgba(255,255,255,.22),
     -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
-/* ── SPARK — rotierender Lichtblitz (jh3y-Vorbild), Conic-Gradient-Keil
-   der als Flip alle paar Sekunden über den Rand läuft ── */
-.btn-gen .spark,.btn-save .spark,.btn-approve-big .spark,.q-card .spark,.opt-row.sel .spark{position:absolute;inset:0;border-radius:inherit;overflow:hidden;
-  mask:linear-gradient(#fff,transparent 60%);pointer-events:none;animation:sparkFlip 3.6s infinite steps(2,end)}
-.btn-gen .spark::before,.btn-save .spark::before,.btn-approve-big .spark::before,.q-card .spark::before,.opt-row.sel .spark::before{content:'';position:absolute;width:200%;aspect-ratio:1;top:0;left:50%;z-index:1;
-  translate:-50% -15%;transform:rotate(-90deg);opacity:.7;
-  background:conic-gradient(from 0deg,transparent 0 340deg,#fff 360deg);
-  animation:sparkRotate 1.8s linear infinite}
-@keyframes sparkFlip{to{rotate:360deg}}
-@keyframes sparkRotate{to{transform:rotate(90deg)}}
+/* ── BORDER-LICHTKANTE — echter Rahmen-Effekt (kein Flächen-Glow):
+   padding-box Füllfarbe + border-box conic-gradient, Rotationswinkel
+   per @property animiert. Bereits einmal verifiziert robust (kein
+   Masken-Ausrichtungs-Bug, da die Box selbst nicht rotiert) ── */
+@property --ring-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes ringSpin{to{--ring-angle:360deg}}
 /* ── REFRACT — Iridescent-Verlauf-Schatten (Simey-Vorbild), pulsierender
    farbverschiebender Blur-Halo statt hover-getriggert (kein Hover auf
    Touch) ── */
@@ -241,8 +249,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
    Sternenkranz (Box-Shadow-Konstellation) statt Rahmen/Verlauf. Rotiert
    als starre Punktwolke um die Mitte, daher unabhängig von der Kachel-
    form robust (kein Masken-Ausrichtungs-Bug wie beim Rahmen-Ansatz) ── */
-.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 1.5px var(--sun);
-  background:rgba(209,172,0,.1);position:relative;overflow:hidden}
+.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08);
+  position:relative;overflow:hidden;
+  border:2px solid transparent;background:
+    linear-gradient(rgba(209,172,0,.1),rgba(209,172,0,.1)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 8%,var(--sun-l) 16%,transparent 30%) border-box;
+  animation:ringSpin 3s linear infinite}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
 /* ── SHINE-SWEEP (Uiverse "Wild West Button", auf unser Farbschema
    übertragen) — laufendes Glanzband über ausgewählte Quartalseinträge ── */
@@ -250,13 +262,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
   background-size:200% 100%;animation:optShine 3s linear infinite}
 @keyframes optShine{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
-.glow-ring{border-color:var(--sun)}
+.glow-ring{border:2px solid transparent;background:
+    linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,var(--sun) 8%,var(--sun-l) 16%,transparent 30%) border-box;
+  animation:ringSpin 3s linear infinite}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
 .opt-dates{font-size:var(--fs-body);color:var(--ink);font-weight:600}.opt-days{font-family:var(--font-mono);font-size:var(--fs-h3);font-weight:800;color:var(--sun-l);white-space:nowrap}
 .none-row .opt-dates{color:var(--text-faint)}.none-row{border-style:dashed}
-.btn-save{width:100%;padding:16px;position:relative;background:var(--violet);color:#0A0A0A;border:none;border-radius:var(--r);
+.btn-save{width:100%;padding:16px;position:relative;color:#0A0A0A;border-radius:var(--r);
+  border:2px solid transparent;background:
+    linear-gradient(var(--violet),var(--violet)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
+  animation:ringSpin 3s linear infinite;
   font-family:var(--font-sans);font-size:var(--fs-bodylg);font-weight:700;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,box-shadow .2s;
   margin-top:16px;margin-bottom:7px;min-height:52px;
@@ -324,7 +343,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   padding:4px 10px;border-radius:5px;border:2px solid;pointer-events:none;opacity:.9}
 .stamp.approved{color:var(--green-l);border-color:var(--green-l)}
 
-.btn-approve-big{width:100%;padding:19px;position:relative;background:var(--violet);color:#0A0A0A;border:none;border-radius:var(--r);
+.btn-approve-big{width:100%;padding:19px;position:relative;color:#0A0A0A;border-radius:var(--r);
+  border:2px solid transparent;background:
+    linear-gradient(var(--violet),var(--violet)) padding-box,
+    conic-gradient(from var(--ring-angle),transparent 0%,#fff 8%,rgba(255,255,255,.5) 16%,transparent 30%) border-box;
+  animation:ringSpin 3s linear infinite;
   font-family:var(--font-sans);font-size:var(--fs-h3);font-weight:800;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;gap:11px;transition:transform .1s,box-shadow .2s;
   margin-bottom:10px;min-height:56px;letter-spacing:.01em;
@@ -1041,7 +1064,7 @@ function renderOptionRows(q){
   if(!opts.length)return'<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';
   let html='';
   opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
-    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')">'+(isSel?'<span class="spark"></span>':'')+'<div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
+    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')">'+'<div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
   });
   html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
   return html;
@@ -1244,7 +1267,7 @@ function renderApprView(){
     +'</div>'
 
     +(!isApproved
-      ? '<button class="btn-approve-big" onclick="approveNow()"><span class="drop-shadow"></span><span class="spark"></span>&#10004; Jetzt genehmigen</button>'
+      ? '<button class="btn-approve-big" onclick="approveNow()"><span class="drop-shadow"></span>&#10004; Jetzt genehmigen</button>'
         +'<div class="appr-hint">Nicht genehmigen = gilt als abgelehnt</div>'
       : '<button class="btn-revoke" onclick="resetApproval()">&#8635; Genehmigung zurücksetzen</button>'
     )
@@ -1348,8 +1371,7 @@ let tT=null;function showToast(msg){const t=document.getElementById('toast');t.t
   checkAR();loadSettings();refreshData(YEAR);ensureVersions(YEAR);
   loadForActiveVersion();syncUI();
   document.querySelectorAll('.btn-gen,.btn-save,.btn-approve-big').forEach(b=>b.insertAdjacentHTML('beforeend',
-    '<span class="drop-shadow"></span><span class="spark"></span>'));
-  document.querySelectorAll('.q-card').forEach(b=>b.insertAdjacentHTML('beforeend','<span class="spark"></span>'));
+    '<span class="drop-shadow"></span>'));
   const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};
   document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');
   const bar=document.getElementById('tabbar'),w=bar.offsetWidth/6;
