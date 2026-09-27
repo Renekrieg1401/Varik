@@ -47,18 +47,19 @@ body{height:100%;overflow:hidden;font-family:var(--font-sans);font-size:var(--fs
 /* ── SHELL ── */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
-/* ── KLARGLAS + NEUMORPHISMUS-HYBRID — echtes durchsichtiges Glas
-   (wenig Blur, Inhalt dahinter bleibt erkennbar), kein Frost/Milchglas-
-   Look, kein gefärbter Grundfill (sonst wirkt es schlammig) + weiches
-   Schatten-Paar für Tiefe (matt, nicht reflektierend) ── */
+/* ── KLARGLAS, VIOLETT GETÖNT — durchsichtiges Glas (wenig Blur, kein
+   Frost/Milchglas), aber mit kräftig-leuchtendem Lila-Tint statt
+   farblosem Fill, plus sanftem Außen-Glow für den Leucht-Effekt.
+   Sättigung hoch halten, sonst kippt es wieder ins Schlammige ── */
 .card{position:relative;overflow:hidden;border-radius:var(--r);
   transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .3s ease;
-  transform-style:preserve-3d;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.14);
-  backdrop-filter:blur(7px) saturate(160%);-webkit-backdrop-filter:blur(7px) saturate(160%);
-  box-shadow:var(--nx) var(--ny) var(--nblur) var(--n-dark),calc(var(--nx) * -1) calc(var(--ny) * -1) 18px var(--n-light)}
+  transform-style:preserve-3d;background:linear-gradient(160deg,rgba(139,16,214,.28),rgba(85,18,133,.16));
+  border:1px solid rgba(217,140,255,.3);
+  backdrop-filter:blur(7px) saturate(180%);-webkit-backdrop-filter:blur(7px) saturate(180%);
+  box-shadow:var(--nx) var(--ny) var(--nblur) var(--n-dark),calc(var(--nx) * -1) calc(var(--ny) * -1) 18px var(--n-light),0 0 26px rgba(139,16,214,.22)}
 .card:hover{transform:perspective(600px) rotateX(4deg) translateY(-5px) scale(1.02);
-  border-color:rgba(255,255,255,.16);
-  box-shadow:14px 14px 28px rgba(3,2,5,.65),-12px -12px 22px rgba(176,60,255,.16)}
+  border-color:rgba(217,140,255,.48);
+  box-shadow:14px 14px 28px rgba(3,2,5,.65),-12px -12px 22px rgba(176,60,255,.16),0 0 34px rgba(139,16,214,.32)}
 .card:active{transform:scale(.98);
   box-shadow:inset 7px 7px 14px rgba(3,2,5,.55),inset -6px -6px 12px rgba(176,60,255,.12)}
 
