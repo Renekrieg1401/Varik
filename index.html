@@ -117,14 +117,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex-shrink:0}
 .tb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
 .tb.active{color:var(--mint)}
-/* ── GALAXY-STERNE (echte Orbit-Technik, jh3y "CSS Galaxy Button") —
-   jeder .star ein eigenes Element, läuft per translateY+rotate auf
-   Kreisbahn, phasenversetzt per --delay ── */
-.star{position:absolute;top:50%;left:50%;height:calc(var(--size) * 1px);aspect-ratio:1;border-radius:50%;
-  background:var(--star-c,#fff);opacity:var(--alpha);pointer-events:none;z-index:1;
-  transform:translate(-50%,-50%) rotate(10deg) rotate(0deg) translateY(calc(var(--distance) * -1px));
-  animation:orbit calc(var(--duration) * 1s) calc(var(--delay) * -1s) infinite linear}
-@keyframes orbit{to{transform:translate(-50%,-50%) rotate(10deg) rotate(360deg) translateY(calc(var(--distance) * -1px))}}
 .tline{position:absolute;top:0;left:0;height:2px;background:var(--mint);border-radius:0 0 3px 3px;
   transition:left .22s cubic-bezier(.4,0,.2,1),width .22s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .tab-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);
@@ -189,7 +181,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     0.025em 0.05em 0.1em 0 inset rgba(255,255,255,.9),
     0.12em 0.12em 0.12em inset rgba(255,255,255,.22),
     -0.075em -0.25em 0.25em 0.1em inset rgba(0,0,0,.3)}
-.btn-gen .star{--star-c:#fff}
 /* ── SPARK — rotierender Lichtblitz (jh3y-Vorbild), Conic-Gradient-Keil
    der als Flip alle paar Sekunden über den Rand läuft ── */
 .btn-gen .spark{position:absolute;inset:0;border-radius:inherit;overflow:hidden;
@@ -251,10 +242,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
    als starre Punktwolke um die Mitte, daher unabhängig von der Kachel-
    form robust (kein Masken-Ausrichtungs-Bug wie beim Rahmen-Ansatz) ── */
 .opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 1.5px var(--sun);
-  background:rgba(209,172,0,.1);position:relative;overflow:visible}
+  background:rgba(209,172,0,.1)}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
-.opt-row.sel .star,.glow-ring .star{--star-c:var(--sun-l)}
-.glow-ring{overflow:visible}
+.glow-ring{border-color:var(--sun)}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
@@ -1020,7 +1010,7 @@ function renderOptionRows(q){
   if(!opts.length)return'<div style="font-size:var(--fs-sm);color:var(--text-faint);padding:5px 0">Keine Option berechnet</div>';
   let html='';
   opts.forEach((o,i)=>{const isSel=sel===i,cls=['ta','tb2','tc'][i];
-    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')">'+(isSel?mkStars(7,24,6,'var(--sun-l)'):'')+'<div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
+    html+='<div class="opt-row'+(isSel?' sel':'')+'" onclick="selectOpt(\''+q.id+'\','+i+')"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl '+cls+'">'+q.id+'-'+'ABC'[i]+'</div><div class="opt-dates">'+fmt(o.start)+' – '+fmt(o.end)+'</div></div><div class="opt-days">'+o.workdays+'<span style="font-size:var(--fs-sm);color:var(--text-faint);margin-left:3px">AT</span></div></div>';
   });
   html+='<div class="opt-row none-row'+(sel===null?' sel':'')+'" onclick="selectOpt(\''+q.id+'\',null)"><div class="opt-chk"></div><div class="opt-info"><div class="opt-lbl" style="color:var(--text-faint)">Kein Urlaub</div><div class="opt-dates">'+q.id+' auslassen</div></div><div class="opt-days" style="color:var(--text-faint)">0<span style="font-size:var(--fs-sm);margin-left:3px">AT</span></div></div>';
   return html;
@@ -1104,7 +1094,7 @@ function renderSavedPlan(){
       }else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
     });
     const titleAction=item.isActive?'':' onclick="switchVersion(\''+item.id+'\')" style="cursor:pointer;touch-action:manipulation"';
-    html+='<div class="saved-plan card'+(item.isActive?' glow-ring':'')+'" style="margin-bottom:10px">'+(item.isActive?mkStars(9,50,7,'var(--sun-l)'):'')+'<div class="sp-title"'+titleAction+'>✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:var(--fs-xs)">— tippen zum Aktivieren</span>')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
+    html+='<div class="saved-plan card'+(item.isActive?' glow-ring':'')+'" style="margin-bottom:10px"><div class="sp-title"'+titleAction+'>✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:var(--fs-xs)">— tippen zum Aktivieren</span>')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
   });
   list.innerHTML=html;
   renderComboBar();
@@ -1322,28 +1312,12 @@ function switchTab(id,idx){VIEWS.forEach(v=>{document.getElementById('view-'+v).
 /* ── toast ── */
 let tT=null;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');if(tT)clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2400);}
 
-/* ── GALAXY-STERNE — echte Orbit-Technik (jh3y "CSS Galaxy Button"):
-   jeder Stern ein eigenes Element, das per translateY+rotate auf einer
-   Kreisbahn läuft, Sterne nur per --delay phasenversetzt auf derselben
-   Bahn ── */
-function mkStars(n,dist,dur,color){
-  let s='';
-  for(let i=0;i<n;i++){
-    const delay=(dur/n*i).toFixed(2);
-    const size=(i%2===0)?3:2;
-    const alpha=(i%2===0)?0.95:0.6;
-    s+='<span class="star" style="--distance:'+dist+';--duration:'+dur+';--delay:'+delay+';--alpha:'+alpha+';--size:'+size+';--star-c:'+color+'"></span>';
-  }
-  return s;
-}
-
 /* ── init ── */
 (function(){
   checkAR();loadSettings();refreshData(YEAR);ensureVersions(YEAR);
   loadForActiveVersion();syncUI();
   document.querySelectorAll('.btn-gen').forEach(b=>b.insertAdjacentHTML('beforeend',
-    '<span class="drop-shadow"></span><span class="spark"></span>'+mkStars(7,26,5,'#fff')));
-  document.querySelectorAll('.tb').forEach(t=>t.insertAdjacentHTML('beforeend',mkStars(6,16,4.5,'var(--mint)')));
+    '<span class="drop-shadow"></span><span class="spark"></span>'));
   const blN={HE:'Hessen',BY:'Bayern',NW:'NRW',BW:'BW',NI:'Niedersachsen',BE:'Berlin'};
   document.getElementById('top-tag').textContent=(blN[CFG.bundesland]||CFG.bundesland)+' \xB7 '+(CFG.workModel==='6t'?'6-Tage':'5-Tage');
   const bar=document.getElementById('tabbar'),w=bar.offsetWidth/6;
