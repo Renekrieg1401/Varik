@@ -438,8 +438,8 @@ select.field{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <div id="plan-sels"></div>
   <button class="btn-save" id="save-btn" onclick="saveMyPlan()" disabled>&#10003; Plan speichern</button>
   <div id="saved-wrap" style="display:none">
-    <div class="sh"><div class="sh-t">Gespeicherter Jahresplan</div><span class="badge bgg">AKTIV</span></div>
-    <div class="saved-plan card" id="saved-card"></div>
+    <div class="sh"><div class="sh-t">Gespeicherte Planungen</div></div>
+    <div id="saved-card-list"></div>
   </div>
   <div class="sh"><div class="sh-t">Manuell geplante Tage</div><span class="badge bg" id="manual-badge">0 AT</span></div>
   <div id="manual-days-list"></div>
@@ -994,13 +994,35 @@ function saveMyPlan(){
   document.getElementById('plan-status').textContent='GESPEICHERT';document.getElementById('plan-status').className='badge bgg';
   showToast('Plan gespeichert – Genehmigung ausstehend');
 }
+function getAllSavedPlans(y){
+  const out=[];
+  for(const v of PLAN_VERSIONS){
+    try{
+      const r=localStorage.getItem(sKeyFor(y,v.id));if(!r)continue;
+      const data=JSON.parse(r);if(data.schema!==SCHEMA_VERSION)continue;
+      const plan=desPlan(data.myPlanSaved);if(!plan)continue;
+      out.push({id:v.id,name:v.name,plan,isActive:v.id===ACTIVE_VERSION});
+    }catch{}
+  }
+  return out;
+}
 function renderSavedPlan(){
-  const wrap=document.getElementById('saved-wrap'),card=document.getElementById('saved-card');
-  if(!MY_PLAN_SAVED){wrap.style.display='none';return;}
-  wrap.style.display='block';let total=0,html='';
-  for(const q of QUARTALS){const o=MY_PLAN_SAVED[q.id];if(o){total+=o.workdays;html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}else html+='<div class="sp-row"><span class="sp-q">'+q.id+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';}
-  const nm=CFG.name?' \xB7 '+CFG.name:'';
-  card.innerHTML='<div class="sp-title">✓ Jahresplan '+YEAR+nm+' — '+total+' Urlaubstage</div>'+html;
+  const wrap=document.getElementById('saved-wrap'),list=document.getElementById('saved-card-list');
+  const all=getAllSavedPlans(YEAR);
+  if(!all.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const ids=['Q1','Q2','Q3','Q4'],nm=CFG.name?' \xB7 '+CFG.name:'';
+  let html='';
+  all.forEach(item=>{
+    let total=0,rows='';
+    ids.forEach(qid=>{
+      const o=item.plan[qid];
+      if(o){total+=o.workdays;rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-date">'+fmt(o.start)+' – '+fmt(o.end)+'</span><span class="sp-days">'+o.workdays+' AT</span></div>';}
+      else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
+    });
+    html+='<div class="saved-plan card" style="margin-bottom:10px'+(item.isActive?';border-color:var(--sun)':'')+'"><div class="sp-title">✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':'')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
+  });
+  list.innerHTML=html;
 }
 
 /* ══════════════════════════════════════════
