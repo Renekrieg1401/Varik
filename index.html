@@ -242,8 +242,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
    als starre Punktwolke um die Mitte, daher unabhängig von der Kachel-
    form robust (kein Masken-Ausrichtungs-Bug wie beim Rahmen-Ansatz) ── */
 .opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 1.5px var(--sun);
-  background:rgba(209,172,0,.1)}
+  background:rgba(209,172,0,.1);position:relative;overflow:hidden}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
+/* ── SHINE-SWEEP (Uiverse "Wild West Button", auf unser Farbschema
+   übertragen) — laufendes Glanzband über ausgewählte Quartalseinträge ── */
+.opt-row.sel::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  background-size:200% 100%;animation:optShine 3s linear infinite}
+@keyframes optShine{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
 .glow-ring{border-color:var(--sun)}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
