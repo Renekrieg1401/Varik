@@ -206,8 +206,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   box-shadow:4px 4px 10px rgba(6,1,14,.5),-3px -3px 8px rgba(182,255,25,.08);
   touch-action:manipulation;min-height:52px}
 .opt-row:last-child{margin-bottom:0}
-.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08),0 0 0 1.5px var(--sun);background:rgba(209,172,0,.1)}
+.opt-row.sel{box-shadow:inset 4px 4px 9px rgba(6,1,14,.45),inset -3px -3px 8px rgba(182,255,25,.08);background:rgba(209,172,0,.1);position:relative}
 .opt-row.sel .opt-chk{border-color:var(--sun);background:var(--sun)}.opt-row.sel .opt-chk::after{opacity:1}
+/* ── UMLAUFENDE LICHTKANTE für ausgewählte/aktive Kacheln — rotierender
+   Lichtpunkt läuft am Rand entlang statt statischem Rahmen ── */
+.glow-ring,.opt-row.sel{position:relative}
+.glow-ring::before,.opt-row.sel::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  padding:2px;background:conic-gradient(from 0deg,transparent 0%,var(--sun) 6%,var(--sun-l) 11%,transparent 20%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:ringSpin 3s linear infinite;pointer-events:none;z-index:2}
+@keyframes ringSpin{to{transform:rotate(360deg)}}
 .opt-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:transparent;flex-shrink:0;position:relative;transition:all .15s}
 .opt-chk::after{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-dark);opacity:0;transition:opacity .12s}
 .opt-info{flex:1;min-width:0}.opt-lbl{font-family:var(--font-mono);font-size:var(--fs-sm);margin-bottom:2px}
@@ -1057,7 +1066,7 @@ function renderSavedPlan(){
       }else rows+='<div class="sp-row"><span class="sp-q">'+qid+'</span><span class="sp-none">Kein Urlaub</span><span class="sp-days" style="color:var(--text-faint)">0 AT</span></div>';
     });
     const titleAction=item.isActive?'':' onclick="switchVersion(\''+item.id+'\')" style="cursor:pointer;touch-action:manipulation"';
-    html+='<div class="saved-plan card" style="margin-bottom:10px'+(item.isActive?';border-color:var(--sun)':'')+'"><div class="sp-title"'+titleAction+'>✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:var(--fs-xs)">— tippen zum Aktivieren</span>')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
+    html+='<div class="saved-plan card'+(item.isActive?' glow-ring':'')+'" style="margin-bottom:10px"><div class="sp-title"'+titleAction+'>✓ '+item.name+nm+(item.isActive?' <span class="badge bgg" style="margin-left:6px">AKTIV</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:var(--fs-xs)">— tippen zum Aktivieren</span>')+' — '+total+' Urlaubstage</div>'+rows+'</div>';
   });
   list.innerHTML=html;
   renderComboBar();
