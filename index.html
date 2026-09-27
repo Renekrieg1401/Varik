@@ -27,7 +27,7 @@
   --ink:#FFFFFF;--slate:#E7E4EE;--text-faint:#948FA3;--secondary:#655C78;--primary-light:#B03CFF;
   /* kräftiges, glänzendes Akzent-Lila — Grundfarbe Diakoniestation Gladenbach (#551285) als Basis, hochgesättigt */
   --violet:#8B10D6;--violet-deep:#551285;--violet-glow:#D98CFF;
-  --mint:#B03CFF;--lime:#F0A8D0;--sun:#D1AC00;--sun-l:#F5D687;
+  --mint:#2DE0D1;--lime:#F0A8D0;--sun:#D1AC00;--sun-l:#F5D687;
   --green:#3FA66B;--green-l:#5FC98A;
   --border:rgba(255,255,255,.07);--border2:rgba(176,60,255,.4);
   --nx:10px;--ny:10px;--nblur:22px;
@@ -42,26 +42,27 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{height:100%;-webkit-text-size-adjust:100%}
 body{height:100%;overflow:hidden;font-family:var(--font-sans);font-size:var(--fs-body);
-  background:var(--charcoal);color:var(--ink);-webkit-tap-highlight-color:transparent}
+  background:radial-gradient(circle at 25% 0%,#9B2FE0,#6B12B0 45%,#3D0A6E 100%);
+  color:var(--ink);-webkit-tap-highlight-color:transparent}
 
 /* ── SHELL ── */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
-/* ── KLARGLAS, VIOLETT GETÖNT — durchsichtiges Glas (wenig Blur, kein
-   Frost/Milchglas), aber mit kräftig-leuchtendem Lila-Tint statt
-   farblosem Fill, plus sanftem Außen-Glow für den Leucht-Effekt.
-   Sättigung hoch halten, sonst kippt es wieder ins Schlammige ── */
+/* ── KLARGLAS ÜBER LILA-HINTERGRUND — Kachel selbst farblos/durchsichtig,
+   damit der kräftig-leuchtende Lila-Seitenhintergrund durchscheint.
+   Tiefe entsteht durch echten Schlagschatten (Glas schwebt über der
+   Fläche), nicht durch gefärbten Fill ── */
 .card{position:relative;overflow:hidden;border-radius:var(--r);
   transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .3s ease;
-  transform-style:preserve-3d;background:linear-gradient(160deg,rgba(139,16,214,.28),rgba(85,18,133,.16));
-  border:1px solid rgba(217,140,255,.3);
-  backdrop-filter:blur(7px) saturate(180%);-webkit-backdrop-filter:blur(7px) saturate(180%);
-  box-shadow:var(--nx) var(--ny) var(--nblur) var(--n-dark),calc(var(--nx) * -1) calc(var(--ny) * -1) 18px var(--n-light),0 0 26px rgba(139,16,214,.22)}
+  transform-style:preserve-3d;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(7px) saturate(150%);-webkit-backdrop-filter:blur(7px) saturate(150%);
+  box-shadow:0 16px 32px rgba(0,0,0,.4),0 4px 10px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.16)}
 .card:hover{transform:perspective(600px) rotateX(4deg) translateY(-5px) scale(1.02);
-  border-color:rgba(217,140,255,.48);
-  box-shadow:14px 14px 28px rgba(3,2,5,.65),-12px -12px 22px rgba(176,60,255,.16),0 0 34px rgba(139,16,214,.32)}
+  border-color:rgba(255,255,255,.32);
+  box-shadow:0 24px 44px rgba(0,0,0,.48),0 8px 16px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.22)}
 .card:active{transform:scale(.98);
-  box-shadow:inset 7px 7px 14px rgba(3,2,5,.55),inset -6px -6px 12px rgba(176,60,255,.12)}
+  box-shadow:0 8px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12)}
 
 /* ── HERO/HEADER — kräftiges, mattes Lila (Farbverlauf statt Glanzstreifen) ── */
 .hero{position:relative;overflow:hidden;background:linear-gradient(105deg,var(--violet-deep),var(--violet) 55%,var(--charcoal));
